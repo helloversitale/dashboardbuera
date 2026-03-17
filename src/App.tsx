@@ -1,0 +1,54 @@
+import { useState } from 'react';
+import Sidebar from './components/Sidebar';
+import Header from './components/Header';
+import Dashboard from './components/Dashboard';
+import BookingsTable from './components/BookingsTable';
+import FleetManagement from './components/FleetManagement';
+
+function App() {
+  const [activeView, setActiveView] = useState('my-work');
+
+  const getPageTitle = () => {
+    switch (activeView) {
+      case 'home':
+        return 'Home';
+      case 'my-work':
+        return 'My Work';
+      case 'bookings':
+        return 'Bookings';
+      case 'fleet':
+        return 'Fleet Management';
+      default:
+        return 'Quick Car Rental';
+    }
+  };
+
+  const renderContent = () => {
+    switch (activeView) {
+      case 'home':
+        return <Dashboard />;
+      case 'my-work':
+        return <BookingsTable />;
+      case 'bookings':
+        return <BookingsTable />;
+      case 'fleet':
+        return <FleetManagement />;
+      default:
+        return <Dashboard />;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex">
+      <Sidebar activeView={activeView} onViewChange={setActiveView} />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Header title={getPageTitle()} />
+        <main className="flex-1 overflow-y-auto p-6">
+          {renderContent()}
+        </main>
+      </div>
+    </div>
+  );
+}
+
+export default App;
