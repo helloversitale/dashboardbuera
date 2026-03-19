@@ -4,6 +4,8 @@ import Header from './components/Header';
 import Dashboard from './components/Dashboard';
 import BookingsTable from './components/BookingsTable';
 import FleetManagement from './components/FleetManagement';
+import CalendarView from './components/CalendarView';
+import TeamAccess from './components/TeamAccess';
 
 function App() {
   const [activeView, setActiveView] = useState('my-work');
@@ -17,7 +19,11 @@ function App() {
       case 'bookings':
         return 'Bookings';
       case 'fleet':
-        return 'Fleet Management';
+        return 'Active Vehicle Inventory';
+      case 'calendar':
+        return 'Calendar View';
+      case 'team':
+        return 'Team & Roles';
       default:
         return 'Quick Car Rental';
     }
@@ -33,6 +39,10 @@ function App() {
         return <BookingsTable />;
       case 'fleet':
         return <FleetManagement />;
+      case 'calendar':
+        return <CalendarView />;
+      case 'team':
+        return <TeamAccess />;
       default:
         return <Dashboard />;
     }

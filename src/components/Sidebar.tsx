@@ -1,4 +1,4 @@
-import { Home, ClipboardList, Car, Menu, ChevronDown } from 'lucide-react';
+import { Home, ClipboardList, Car, Menu, ChevronDown, CalendarDays, Users } from 'lucide-react';
 
 interface SidebarProps {
   activeView: string;
@@ -88,12 +88,29 @@ export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
                     : 'text-gray-600 hover:bg-gray-50'
                 }`}
               >
-                Fleet Management
+                Active Vehicle Inventory
               </button>
               <button
-                className="w-full text-left px-3 py-1.5 rounded text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+                onClick={() => onViewChange('calendar')}
+                className={`w-full flex items-center gap-2 px-3 py-1.5 text-sm rounded transition-colors ${
+                  activeView === 'calendar'
+                    ? 'bg-gray-100 text-gray-900'
+                    : 'text-gray-600 hover:bg-gray-50'
+                }`}
               >
-                Vehicle Operational Tasks
+                <CalendarDays className="w-4 h-4" />
+                Calendar View
+              </button>
+              <button
+                onClick={() => onViewChange('team')}
+                className={`w-full flex items-center gap-2 px-3 py-1.5 text-sm rounded transition-colors ${
+                  activeView === 'team'
+                    ? 'bg-gray-100 text-gray-900'
+                    : 'text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                <Users className="w-4 h-4" />
+                Team & Roles
               </button>
             </div>
           </div>
