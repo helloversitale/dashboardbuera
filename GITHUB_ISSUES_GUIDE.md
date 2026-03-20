@@ -1,40 +1,75 @@
-# GitHub Issues & Milestones Tracking Guide
+# GitHub Issues & Workflow Guide for AI Agents
 
-This guide is designed to instruct AI Development Agents on our strict workflow for managing work via GitHub Issues and Milestones for our project (`helloversitale/dashboardbuera`). If you have been provided this guide, you **MUST** follow these procedures whenever instructed to work on a task.
+**Project**: `helloversitale/dashboardbuera`  
+**Objective**: Maintain a rigorous, transparent, and up-to-date history of all work, decisions, and progress.
 
-## 🎯 Core Principles
-1. **No Code Without an Issue**: Every feature, bug fix, or refactor must be tracked by a corresponding GitHub issue.
-2. **Track Progress Continuously**: Do not wait until the task is fully complete to update GitHub. Keep a log of your progress inside the issue.
-3. **Keep Milestones Updated**: Ensure that issues are assigned to their respective milestones where appropriate.
+## ⚠️ Prime Directive
+**No code changes are committed without a corresponding GitHub Issue.** Taking 30 seconds to track work saves hours of confusion later.
 
-## 🔄 Standard Workflow for AI Agents
+---
 
-### 1. Initialization (Start of Chat / Task)
-When you receive a new goal from the user:
-- Search for existing issues using your GitHub tools (`mcp_github-mcp-server_search_issues` or `mcp_github-mcp-server_list_issues`).
-- If an issue already covers the request, **comment** that you are beginning work on it.
-- If no issue exists, **create a new issue** (`mcp_github-mcp-server_issue_write`) with a clear title, an objective description, and link it to the relevant milestone if directed by the user. 
-  - Always briefly confirm the issue creation with the user before diving into the code implementation.
+## 1. Initialization (Start of Task)
 
-### 2. Implementation & Progress Updates
-While actively coding, investigating, or debugging:
-- For complex tasks taking multiple steps, add intermediate comments (`mcp_github-mcp-server_add_issue_comment`) to the issue to document technical decisions, architectural choices, blockers, or partial milestone achievements.
-- If you create a Pull Request, make sure to cross-reference the issue (e.g., "Fixes #123").
+Before writing any code or planning detailed implementation:
 
-### 3. Task Completion
-When the user's request has been fully implemented and verified:
-- Close the issue (`mcp_github-mcp-server_issue_write` with state: `closed` and state_reason: `completed`).
-- Add a final detailed comment explaining the implemented solution, covering any new features added or bugs fixed.
-- Check if the current milestone needs updating or reviewing.
+1. **Search**: Look for existing issues related to the user's request.  
+   - **Tool**: `mcp_github-mcp-server_search_issues`
 
-## 🛠️ Required MCP Server Tools
-You have access to the `github-mcp-server` to seamlessly execute these directives. Key tools to rely on:
-- `mcp_github-mcp-server_issue_write` (to create, edit, or close issues)
-- `mcp_github-mcp-server_add_issue_comment` (to post continuous progress updates)
-- `mcp_github-mcp-server_search_issues` (to look up issues and prevent duplicates)
+2. **Create (if not found)**: Create a new issue if one does not exist.  
+   - **Tool**: `mcp_github-mcp-server_issue_write` (method: create)
 
-## 📌 Repository Information
-- **Owner**: `helloversitale`
-- **Repo**: `dashboardbuera`
+3. **Update (if found)**: If an issue exists but is outdated, update it with new context.
 
-Always apply these rules rigorously to ensure the project remains organized, disciplined, and easy to track!
+### Issue Structure Template
+
+When creating an issue, use this structure:
+
+- **Title**: `[Type] Concise Description`
+- **Types**: `Feature`, `Bug`, `Refactor`, `Docs`, `Chore`
+
+**Body**:
+
+```markdown
+## Objective
+[Brief description of what needs to be achieved]
+
+## Acceptance Criteria
+
+- [ ] Criterion 1 (e.g., Page loads without errors)
+- [ ] Criterion 2 (e.g., User can click X)
+
+## Technical Notes
+
+- [Optional: Brief note on implementation strategy, e.g., "Using generic-ui library"]
+```
+
+## 2. Execution (During Work)
+**Branching**: Specific branches should be created for the issue.
+
+**Naming Convention**: `feat/issue-ID-short-description` or `fix/issue-ID-short-description`
+
+**Commits**: All commit messages must reference the issue ID.
+
+**Format**: `[ISSUE_ID] commit message` (e.g., `[#12] Add responsive styles to header`)
+
+## 3. Completion (End of Task)
+**Verification**: Ensure all Acceptance Criteria are met.
+
+**Closing**: Close the issue using the GitHub tool.
+- **Tool**: `mcp_github-mcp-server_issue_write` (method: update, state: closed)
+
+**Comment**: Add a final comment summarizing the resolution if it wasn't a standard PR merge (optional but recommended for complex tasks).
+
+## 4. Standard Labels
+Apply these labels when creating issues:
+- `enhancement`: New features or improvements.
+- `bug`: Errors or broken functionality.
+- `documentation`: Changes to README, guides, or code comments.
+- `refactor`: Code cleanup without logic change.
+- `urgent`: Blocks critical workflows.
+
+## 5. Agent Instructions (System Prompt Injection)
+"When you (the AI Agent) read this file, you must:"
+- Acknowledge that you will track your work.
+- Ask the user for the specific Issue ID if you cannot find one, or ask for permission to create it.
+- Update the issue status as you progress.
