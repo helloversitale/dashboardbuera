@@ -53,25 +53,11 @@ function App() {
       <Sidebar activeView={activeView} onViewChange={setActiveView} />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header title={getPageTitle()} />
-        <main className="flex-1 overflow-y-auto p-6 relative">
+        <main className="flex-1 overflow-y-auto p-6">
           {renderContent()}
-          <ErrorButton />
         </main>
       </div>
     </div>
-  );
-}
-
-function ErrorButton() {
-  return (
-    <button
-      onClick={() => {
-        throw new Error('This is your first error!');
-      }}
-      className="fixed bottom-20 right-4 z-50 bg-red-600 text-white rounded px-4 py-2 hover:bg-red-700 font-medium shadow-md transition-colors"
-    >
-      Break the world
-    </button>
   );
 }
 

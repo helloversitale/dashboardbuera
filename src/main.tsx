@@ -9,12 +9,6 @@ Sentry.init({
   integrations: [
     Sentry.browserTracingIntegration(),
     Sentry.replayIntegration(),
-    Sentry.feedbackIntegration({
-      // Additional preferences for your feedback widget
-      colorScheme: "system",
-      isNameRequired: true,
-      isEmailRequired: true,
-    }),
   ],
   // Performance Monitoring
   tracesSampleRate: 1.0, // Capture 100% of the transactions
