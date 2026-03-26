@@ -29,10 +29,10 @@ To maintain alignment with the existing dashboard:
 ## 3. Step-by-Step Implementation Execution
 
 ### Phase 1: Supabase Setup & Architecture
-1. **Initialize Supabase Project:** Create the project and setup database schemas for staff, customers, vehicles, and bookings.
-2. **Setup RLS (Row Level Security):** 
-   - Ensure only authenticated staff can read/write data.
-3. **Storage Buckets:** Create `vehicle-media` and `customer-documents` private buckets.
+1. **Initialize Supabase Project & Tables:** Set up Supabase as needed, creating all tables including the roles (staff, customers, vehicles, bookings, etc.).
+2. **Authentication Pages:** Create the signup and login pages.
+3. **Handle User Roles & Create Admin:** Handle user roles in the application logic. We will create our admin user manually on Supabase once we have the tables created (including roles).
+4. **Test Login And Roles:** Test the login functionality and role-based access.
 
 ### Phase 2: React Architecture & Component Integration
 1. **Component Library Setup:** Add fundamental shadcn/ui components (`button`, `input`, `select`, `toast`, `table`, `dialog`, `calendar`).
