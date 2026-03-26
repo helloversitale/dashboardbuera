@@ -1,11 +1,25 @@
-import { Home, ClipboardList, Car, Menu, ChevronDown, CalendarDays, Users } from 'lucide-react';
 
-interface SidebarProps {
-  activeView: string;
-  onViewChange: (view: string) => void;
-}
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Home, ClipboardList, Car, Menu, ChevronDown, CalendarDays, Users, LogOut } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../contexts/AuthContext';
 
-export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
+export default function Sidebar() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { role } = useAuth();
+  
+  const activeView = location.pathname.substring(1) || 'home';
+
+  const navigateTo = (path: string) => {
+    navigate(`/${path}`);
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate('/login');
+  };
+
   return (
     <div className="w-64 bg-white border-r border-gray-200 flex flex-col h-screen">
       <div className="p-4 border-b border-gray-200">
@@ -15,30 +29,32 @@ export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
         </div>
       </div>
 
-      <nav className="flex-1 p-3">
+      <nav className="flex-1 p-3 overflow-y-auto">
         <div className="space-y-1">
-          <button
-            onClick={() => onViewChange('home')}
-            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
-              activeView === 'home'
-                ? 'bg-blue-50 text-blue-700'
-                : 'text-gray-700 hover:bg-gray-100'
-            }`}
-          >
-            <Home className="w-4 h-4" />
-            <span>Home</span>
-          </button>
+          {role === 'admin' && (
+            <button
+              onClick={() => navigateTo('')}
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                activeView === 'home'
+                  ? 'bg-blue-50 text-blue-700'
+                  : 'text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              <Home className="w-4 h-4" />
+              <span>Home</span>
+            </button>
+          )}
 
           <button
-            onClick={() => onViewChange('my-work')}
+            onClick={() => navigateTo('bookings')}
             className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
-              activeView === 'my-work'
+              activeView === 'bookings'
                 ? 'bg-blue-50 text-blue-700'
                 : 'text-gray-700 hover:bg-gray-100'
             }`}
           >
             <ClipboardList className="w-4 h-4" />
-            <span>My Work</span>
+            <span>Bookings</span>
           </button>
 
           <button
@@ -71,17 +87,7 @@ export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
 
             <div className="ml-8 space-y-1">
               <button
-                onClick={() => onViewChange('bookings')}
-                className={`w-full text-left px-3 py-1.5 rounded text-sm transition-colors ${
-                  activeView === 'bookings'
-                    ? 'bg-gray-100 text-gray-900'
-                    : 'text-gray-600 hover:bg-gray-50'
-                }`}
-              >
-                Booking
-              </button>
-              <button
-                onClick={() => onViewChange('fleet')}
+                onClick={() => navigateTo('fleet')}
                 className={`w-full text-left px-3 py-1.5 rounded text-sm transition-colors ${
                   activeView === 'fleet'
                     ? 'bg-gray-100 text-gray-900'
@@ -91,7 +97,7 @@ export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
                 Active Vehicle Inventory
               </button>
               <button
-                onClick={() => onViewChange('calendar')}
+                onClick={() => navigateTo('calendar')}
                 className={`w-full flex items-center gap-2 px-3 py-1.5 text-sm rounded transition-colors ${
                   activeView === 'calendar'
                     ? 'bg-gray-100 text-gray-900'
@@ -101,21 +107,33 @@ export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
                 <CalendarDays className="w-4 h-4" />
                 Calendar View
               </button>
-              <button
-                onClick={() => onViewChange('team')}
-                className={`w-full flex items-center gap-2 px-3 py-1.5 text-sm rounded transition-colors ${
-                  activeView === 'team'
-                    ? 'bg-gray-100 text-gray-900'
-                    : 'text-gray-600 hover:bg-gray-50'
-                }`}
-              >
-                <Users className="w-4 h-4" />
-                Team & Roles
-              </button>
+              {(role === 'manager' || role === 'admin') && (
+                <button
+                  onClick={() => navigateTo('team')}
+                  className={`w-full flex items-center gap-2 px-3 py-1.5 text-sm rounded transition-colors ${
+                    activeView === 'team'
+                      ? 'bg-gray-100 text-gray-900'
+                      : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <Users className="w-4 h-4" />
+                  Team & Roles
+                </button>
+              )}
             </div>
           </div>
         </div>
       </nav>
+
+      <div className="p-4 border-t border-gray-200">
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-red-600 hover:bg-red-50 transition-colors"
+        >
+          <LogOut className="w-4 h-4" />
+          <span>Sign Out</span>
+        </button>
+      </div>
     </div>
   );
 }

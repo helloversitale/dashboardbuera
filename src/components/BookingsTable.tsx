@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase, Booking } from '../lib/supabase';
-import { Calendar, AlertCircle, CheckCircle, Clock, Wrench } from 'lucide-react';
+import { Calendar, AlertCircle, CheckCircle, Clock } from 'lucide-react';
 
 export default function BookingsTable() {
   const [bookings, setBookings] = useState<Booking[]>([]);

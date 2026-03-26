@@ -1,6 +1,12 @@
-import { useState } from 'react';
-import Sidebar from './components/Sidebar';
-import Header from './components/Header';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+import InternalLayout from './components/layouts/InternalLayout';
+import { AuthProvider } from './contexts/AuthContext';
+
+// Pages & Components (Re-using old components for now in new routes)
+import LoginPage from './pages/auth/LoginPage';
+import SignupPage from './pages/auth/SignupPage';
+
 import Dashboard from './components/Dashboard';
 import BookingsTable from './components/BookingsTable';
 import FleetManagement from './components/FleetManagement';
@@ -8,56 +14,33 @@ import CalendarView from './components/CalendarView';
 import TeamAccess from './components/TeamAccess';
 
 function App() {
-  const [activeView, setActiveView] = useState('my-work');
-
-  const getPageTitle = () => {
-    switch (activeView) {
-      case 'home':
-        return 'Home';
-      case 'my-work':
-        return 'My Work';
-      case 'bookings':
-        return 'Bookings';
-      case 'fleet':
-        return 'Active Vehicle Inventory';
-      case 'calendar':
-        return 'Calendar View';
-      case 'team':
-        return 'Team & Roles';
-      default:
-        return 'Quick Car Rental';
-    }
-  };
-
-  const renderContent = () => {
-    switch (activeView) {
-      case 'home':
-        return <Dashboard />;
-      case 'my-work':
-        return <BookingsTable />;
-      case 'bookings':
-        return <BookingsTable />;
-      case 'fleet':
-        return <FleetManagement />;
-      case 'calendar':
-        return <CalendarView />;
-      case 'team':
-        return <TeamAccess />;
-      default:
-        return <Dashboard />;
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <Sidebar activeView={activeView} onViewChange={setActiveView} />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Header title={getPageTitle()} />
-        <main className="flex-1 overflow-y-auto p-6">
-          {renderContent()}
-        </main>
-      </div>
-    </div>
+    <Router>
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+          
+          <Route element={<ProtectedRoute />}>
+            <Route element={<InternalLayout />}>
+              <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+                <Route path="/" element={<Dashboard />} />
+              </Route>
+              
+              <Route path="/fleet" element={<FleetManagement />} />
+              <Route path="/bookings" element={<BookingsTable />} />
+              <Route path="/calendar" element={<CalendarView />} />
+              
+              <Route element={<ProtectedRoute allowedRoles={['admin', 'manager']} />}>
+                <Route path="/team" element={<TeamAccess />} />
+              </Route>
+
+              <Route path="*" element={<Navigate to="/bookings" replace />} />
+            </Route>
+          </Route>
+        </Routes>
+      </AuthProvider>
+    </Router>
   );
 }
 
