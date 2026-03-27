@@ -36,7 +36,7 @@ export default function CalendarView() {
             <CalendarIcon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
             Fleet Availability Calendar
           </h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Track where your cars are across the week.</p>
+          <p className="text-sm text-gray-500 dark:text-gray-300 mt-1">Track where your cars are across the week.</p>
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
@@ -57,7 +57,7 @@ export default function CalendarView() {
       </div>
 
       {/* Legend */}
-      <div className="flex px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 gap-4 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+      <div className="flex px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 gap-4 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
         <div className="flex items-center gap-2">
           <span className="w-3 h-3 rounded-sm bg-green-200 dark:bg-green-700 border border-green-300 dark:border-green-600"></span> Available
         </div>
@@ -81,7 +81,7 @@ export default function CalendarView() {
           <div className="w-3/4 flex">
             {days.map((day, i) => (
               <div key={i} className="flex-1 p-3 text-center border-r border-gray-200 dark:border-gray-700 last:border-0 relative">
-                <span className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-widest">{format(day, 'EEE')}</span>
+                <span className="block text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-widest">{format(day, 'EEE')}</span>
                 <span className={`text-xl font-bold ${format(day, 'MM-dd') === format(new Date(), 'MM-dd') ? 'text-blue-600 dark:text-blue-400' : 'text-gray-900 dark:text-white'}`}>
                   {format(day, 'd')}
                 </span>
@@ -98,13 +98,13 @@ export default function CalendarView() {
         {/* Fleet Rows */}
         <div className="min-w-[800px]">
           {fleet.map((car) => (
-            <div key={car.id} className="flex border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors">
+            <div key={car.id} className="flex border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
               <div className="w-1/4 min-w-[200px] p-4 border-r border-gray-100 dark:border-gray-700 flex flex-col justify-center">
                 <div className="font-medium text-gray-900 dark:text-white text-sm flex items-center gap-2">
                   <Car className="w-4 h-4 text-gray-400 dark:text-gray-500" />
                   {car.name}
                 </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 ml-6">{car.plate}</div>
+                <div className="text-xs text-gray-500 dark:text-gray-300 mt-0.5 ml-6">{car.plate}</div>
               </div>
               <div className="w-3/4 flex relative">
                 {days.map((_, i) => {
