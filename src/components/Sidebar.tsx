@@ -106,7 +106,7 @@ export default function Sidebar() {
                 <CalendarDays className="w-4 h-4" />
                 Calendar View
               </button>
-              {(role === 'manager' || role === 'admin') && (
+              {role === 'admin' && (
                 <button
                   onClick={() => navigateTo('team')}
                   className={`w-full flex items-center gap-2 px-3 py-1.5 text-sm rounded transition-colors ${
