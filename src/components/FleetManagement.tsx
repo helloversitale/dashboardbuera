@@ -52,15 +52,15 @@ export default function FleetManagement() {
   function getStatusColor(status: string) {
     switch (status) {
       case 'available':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300 border-green-200 dark:border-green-700';
       case 'rented':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-700';
       case 'maintenance':
-        return 'bg-orange-100 text-orange-800 border-orange-200';
+        return 'bg-orange-100 dark:bg-orange-900/40 text-orange-800 dark:text-orange-300 border-orange-200 dark:border-orange-700';
       case 'damaged':
-        return 'bg-red-100 text-red-800 border-red-200';
+        return 'bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300 border-red-200 dark:border-red-700';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 border-gray-200 dark:border-gray-600';
     }
   }
 
@@ -98,69 +98,69 @@ export default function FleetManagement() {
   return (
     <div>
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 transition-colors">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Total Vehicles</p>
-              <p className="text-3xl font-bold text-gray-900 mt-1">{stats.total}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Total Vehicles</p>
+              <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">{stats.total}</p>
             </div>
-            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-              <Car className="w-6 h-6 text-gray-600" />
+            <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+              <Car className="w-6 h-6 text-gray-600 dark:text-gray-400" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 transition-colors">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Available</p>
-              <p className="text-3xl font-bold text-green-600 mt-1">{stats.available}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Available</p>
+              <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-1">{stats.available}</p>
             </div>
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-              <CheckCircle className="w-6 h-6 text-green-600" />
+            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/40 rounded-lg flex items-center justify-center">
+              <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 transition-colors">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Rented</p>
-              <p className="text-3xl font-bold text-blue-600 mt-1">{stats.rented}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Rented</p>
+              <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-1">{stats.rented}</p>
             </div>
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-              <Car className="w-6 h-6 text-blue-600" />
+            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/40 rounded-lg flex items-center justify-center">
+              <Car className="w-6 h-6 text-blue-600 dark:text-blue-400" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 transition-colors">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">In Maintenance</p>
-              <p className="text-3xl font-bold text-orange-600 mt-1">{stats.maintenance}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">In Maintenance</p>
+              <p className="text-3xl font-bold text-orange-600 dark:text-orange-400 mt-1">{stats.maintenance}</p>
             </div>
-            <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-              <Wrench className="w-6 h-6 text-orange-600" />
+            <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/40 rounded-lg flex items-center justify-center">
+              <Wrench className="w-6 h-6 text-orange-600 dark:text-orange-400" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 transition-colors">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Damaged</p>
-              <p className="text-3xl font-bold text-red-600 mt-1">{stats.damaged}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Damaged</p>
+              <p className="text-3xl font-bold text-red-600 dark:text-red-400 mt-1">{stats.damaged}</p>
             </div>
-            <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-              <AlertTriangle className="w-6 h-6 text-red-600" />
+            <div className="w-12 h-12 bg-red-100 dark:bg-red-900/40 rounded-lg flex items-center justify-center">
+              <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400" />
             </div>
           </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200">
-        <div className="p-4 border-b border-gray-200">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 transition-colors">
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
@@ -168,7 +168,7 @@ export default function FleetManagement() {
                 className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${
                   filter === 'all'
                     ? 'bg-blue-600 text-white'
-                    : 'text-gray-600 hover:bg-gray-100'
+                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                 }`}
               >
                 All
@@ -178,7 +178,7 @@ export default function FleetManagement() {
                 className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${
                   filter === 'available'
                     ? 'bg-blue-600 text-white'
-                    : 'text-gray-600 hover:bg-gray-100'
+                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                 }`}
               >
                 Available
@@ -188,7 +188,7 @@ export default function FleetManagement() {
                 className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${
                   filter === 'rented'
                     ? 'bg-blue-600 text-white'
-                    : 'text-gray-600 hover:bg-gray-100'
+                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                 }`}
               >
                 Rented
@@ -198,7 +198,7 @@ export default function FleetManagement() {
                 className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${
                   filter === 'maintenance'
                     ? 'bg-blue-600 text-white'
-                    : 'text-gray-600 hover:bg-gray-100'
+                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                 }`}
               >
                 Maintenance
@@ -208,7 +208,7 @@ export default function FleetManagement() {
                 className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${
                   filter === 'damaged'
                     ? 'bg-blue-600 text-white'
-                    : 'text-gray-600 hover:bg-gray-100'
+                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                 }`}
               >
                 Damaged
@@ -224,18 +224,18 @@ export default function FleetManagement() {
           {vehicles.map((vehicle) => (
             <div
               key={vehicle.id}
-              className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+              className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow"
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <Car className="w-5 h-5 text-blue-600" />
+                  <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/40 rounded-lg flex items-center justify-center">
+                    <Car className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">
+                    <h3 className="font-semibold text-gray-900 dark:text-white">
                       {vehicle.make} {vehicle.model}
                     </h3>
-                    <p className="text-sm text-gray-500">{vehicle.year}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{vehicle.year}</p>
                   </div>
                 </div>
                 <span
@@ -250,21 +250,21 @@ export default function FleetManagement() {
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">License Plate</span>
-                  <span className="font-medium text-gray-900">{vehicle.license_plate}</span>
+                  <span className="text-gray-600 dark:text-gray-400">License Plate</span>
+                  <span className="font-medium text-gray-900 dark:text-white">{vehicle.license_plate}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">Color</span>
-                  <span className="font-medium text-gray-900">{vehicle.color}</span>
+                  <span className="text-gray-600 dark:text-gray-400">Color</span>
+                  <span className="font-medium text-gray-900 dark:text-white">{vehicle.color}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">Daily Rate</span>
-                  <span className="font-semibold text-blue-600">${vehicle.daily_rate}/day</span>
+                  <span className="text-gray-600 dark:text-gray-400">Daily Rate</span>
+                  <span className="font-semibold text-blue-600 dark:text-blue-400">${vehicle.daily_rate}/day</span>
                 </div>
               </div>
 
-              <div className="mt-4 pt-4 border-t border-gray-100">
-                <button className="w-full px-3 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded transition-colors">
+              <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                <button className="w-full px-3 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-colors">
                   View Details
                 </button>
               </div>
@@ -274,8 +274,8 @@ export default function FleetManagement() {
 
         {vehicles.length === 0 && (
           <div className="text-center py-12">
-            <Car className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500">No vehicles found</p>
+            <Car className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+            <p className="text-gray-500 dark:text-gray-400">No vehicles found</p>
           </div>
         )}
       </div>

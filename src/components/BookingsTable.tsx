@@ -104,8 +104,8 @@ export default function BookingsTable() {
   }
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200">
-      <div className="p-4 border-b border-gray-200">
+    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 transition-colors">
+      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
@@ -113,7 +113,7 @@ export default function BookingsTable() {
               className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${
                 filter === 'overdue'
                   ? 'bg-blue-600 text-white'
-                  : 'text-gray-600 hover:bg-gray-100'
+                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
               }`}
             >
               Overdue
@@ -123,7 +123,7 @@ export default function BookingsTable() {
               className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${
                 filter === 'all'
                   ? 'bg-blue-600 text-white'
-                  : 'text-gray-600 hover:bg-gray-100'
+                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
               }`}
             >
               All Bookings
@@ -137,49 +137,49 @@ export default function BookingsTable() {
 
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-50 border-b border-gray-200">
+          <thead className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Customer
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Vehicle
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Date Period
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Board
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Status
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Amount
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Person
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
             {bookings.map((booking) => (
               <tr
                 key={booking.id}
-                className="hover:bg-gray-50 transition-colors"
+                className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">
+                  <div className="text-sm font-medium text-gray-900 dark:text-white">
                     {booking.customers?.name || 'Unknown'}
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">
+                  <div className="text-sm text-gray-900 dark:text-gray-200">
                     {booking.vehicles
                       ? `${booking.vehicles.make} ${booking.vehicles.model}`
                       : 'N/A'}
                   </div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
                     {booking.vehicles?.license_plate || ''}
                   </div>
                 </td>
@@ -188,13 +188,13 @@ export default function BookingsTable() {
                     <span className={`inline-flex items-center gap-1 text-xs ${getStatusColor(booking.status)}`}>
                       {getStatusIcon(booking.status)}
                     </span>
-                    <span className="text-sm text-gray-900">
+                    <span className="text-sm text-gray-900 dark:text-gray-200">
                       {formatDate(booking.start_date)}
                     </span>
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="text-sm text-gray-900">{booking.board_type}</span>
+                  <span className="text-sm text-gray-900 dark:text-gray-200">{booking.board_type}</span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span
@@ -207,7 +207,7 @@ export default function BookingsTable() {
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">
+                  <div className="text-sm font-medium text-gray-900 dark:text-white">
                     ${booking.total_amount.toFixed(2)}
                   </div>
                 </td>
@@ -227,18 +227,18 @@ export default function BookingsTable() {
 
         {bookings.length === 0 && (
           <div className="text-center py-12">
-            <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500">No bookings found</p>
+            <Calendar className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+            <p className="text-gray-500 dark:text-gray-400">No bookings found</p>
           </div>
         )}
       </div>
 
       {filter === 'overdue' && bookings.length > 0 && (
-        <div className="px-6 py-3 bg-red-50 border-t border-red-100">
-          <div className="flex items-center gap-2 text-sm text-red-800">
+        <div className="px-6 py-3 bg-red-50 dark:bg-red-900/30 border-t border-red-100 dark:border-red-800">
+          <div className="flex items-center gap-2 text-sm text-red-800 dark:text-red-300">
             <AlertCircle className="w-4 h-4" />
             <span className="font-medium">{bookings.length} overdue items</span>
-            <span className="text-red-600">require immediate attention</span>
+            <span className="text-red-600 dark:text-red-400">require immediate attention</span>
           </div>
         </div>
       )}

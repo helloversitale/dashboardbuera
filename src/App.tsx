@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import InternalLayout from './components/layouts/InternalLayout';
 import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 // Pages & Components (Re-using old components for now in new routes)
 import LoginPage from './pages/auth/LoginPage';
@@ -15,6 +16,7 @@ import TeamAccess from './components/TeamAccess';
 
 function App() {
   return (
+    <ThemeProvider>
     <Router>
       <AuthProvider>
         <Routes>
@@ -41,6 +43,8 @@ function App() {
         </Routes>
       </AuthProvider>
     </Router>
+    </ThemeProvider>
+
   );
 }
 
