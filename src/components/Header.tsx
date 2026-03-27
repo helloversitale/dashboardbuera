@@ -11,7 +11,7 @@ interface HeaderProps {
 
 export default function Header({ title }: HeaderProps) {
   const { theme, toggleTheme } = useTheme();
-  const { user, role } = useAuth();
+  const { user, role, avatarUrl } = useAuth();
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -85,23 +85,38 @@ export default function Header({ title }: HeaderProps) {
           <div className="relative" ref={dropdownRef}>
             <button 
               onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="w-9 h-9 bg-orange-500 hover:bg-orange-600 transition-colors rounded-full flex items-center justify-center text-white text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+              className="w-9 h-9 bg-orange-500 hover:bg-orange-600 transition-colors rounded-full flex items-center justify-center text-white text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 overflow-hidden"
             >
-              {getInitials(user?.email)}
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                getInitials(user?.email)
+              )}
             </button>
 
             {dropdownOpen && (
               <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 dark:ring-gray-700 z-50 overflow-hidden text-left">
                 {/* User Info Section */}
                 <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white capitalize">
-                    {getUserName()}
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 truncate mt-0.5">
-                    {user?.email || 'No email'}
-                  </p>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-bold overflow-hidden">
+                      {avatarUrl ? (
+                        <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                      ) : (
+                        getInitials(user?.email)
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white capitalize truncate">
+                        {getUserName()}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
+                        {user?.email || 'No email'}
+                      </p>
+                    </div>
+                  </div>
                   {role && (
-                    <span className="inline-block mt-2 px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 rounded capitalize">
+                    <span className="inline-block px-2 py-0.5 text-[10px] font-bold bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 rounded uppercase tracking-wider">
                       {role}
                     </span>
                   )}
