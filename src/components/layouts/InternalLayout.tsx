@@ -18,6 +18,8 @@ export default function InternalLayout() {
         return 'Calendar View';
       case '/team':
         return 'Team & Roles';
+      case '/profile':
+        return 'Profile';
       default:
         return 'Quick Car Rental';
     }

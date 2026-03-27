@@ -13,6 +13,7 @@ import BookingsTable from './components/BookingsTable';
 import FleetManagement from './components/FleetManagement';
 import CalendarView from './components/CalendarView';
 import TeamAccess from './components/TeamAccess';
+import Profile from './components/Profile';
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
               <Route path="/fleet" element={<FleetManagement />} />
               <Route path="/bookings" element={<BookingsTable />} />
               <Route path="/calendar" element={<CalendarView />} />
+              <Route path="/profile" element={<Profile />} />
               
               <Route element={<ProtectedRoute allowedRoles={['admin', 'manager']} />}>
                 <Route path="/team" element={<TeamAccess />} />

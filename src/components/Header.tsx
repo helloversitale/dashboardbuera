@@ -3,6 +3,7 @@ import { Bell, Search, HelpCircle, Grid, Settings, Sun, Moon, User, LogOut } fro
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
+import { useNavigate } from 'react-router-dom';
 
 interface HeaderProps {
   title: string;
@@ -11,6 +12,7 @@ interface HeaderProps {
 export default function Header({ title }: HeaderProps) {
   const { theme, toggleTheme } = useTheme();
   const { user, role } = useAuth();
+  const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -108,7 +110,7 @@ export default function Header({ title }: HeaderProps) {
                 {/* Actions */}
                 <div className="py-1">
                   <button 
-                    onClick={() => { setDropdownOpen(false); /* Add navigation if needed */ }}
+                    onClick={() => { setDropdownOpen(false); navigate('/profile'); }}
                     className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 transition-colors"
                   >
                     <User className="w-4 h-4 text-gray-500 dark:text-gray-400" />
