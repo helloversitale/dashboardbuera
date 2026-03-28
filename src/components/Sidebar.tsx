@@ -160,31 +160,31 @@ export default function Sidebar({ isCollapsed, onToggleSidebar, isMobileMenuOpen
                 <CalendarDays className="w-4 h-4" />
                 Calendar View
               </button>
-              {role === 'admin' && (
-                <>
-                  <button
-                    onClick={() => navigateTo('team')}
-                    className={`w-full flex items-center gap-2 px-3 py-1.5 text-sm rounded transition-colors ${
-                      activeView === 'team'
-                        ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
-                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
-                    }`}
-                  >
-                    <Users className="w-4 h-4" />
-                    Team & Roles
-                  </button>
-                  <button
-                    onClick={() => navigateTo('blacklist')}
-                    className={`w-full flex items-center gap-2 px-3 py-1.5 text-sm rounded transition-colors ${
-                      activeView === 'blacklist'
-                        ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
-                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
-                    }`}
-                  >
-                    <UserX className="w-4 h-4 text-red-500" />
-                    Black Listed
-                  </button>
-                </>
+              {['admin', 'manager'].includes(role || '') && (
+                <button
+                  onClick={() => navigateTo('team')}
+                  className={`w-full flex items-center gap-2 px-3 py-1.5 text-sm rounded transition-colors ${
+                    activeView === 'team'
+                      ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
+                  }`}
+                >
+                  <Users className="w-4 h-4" />
+                  Team & Roles
+                </button>
+              )}
+              {['admin', 'manager', 'staff'].includes(role || '') && (
+                <button
+                  onClick={() => navigateTo('blacklist')}
+                  className={`w-full flex items-center gap-2 px-3 py-1.5 text-sm rounded transition-colors ${
+                    activeView === 'blacklist'
+                      ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
+                  }`}
+                >
+                  <UserX className="w-4 h-4 text-red-500" />
+                  Black Listed
+                </button>
               )}
             </div>
             

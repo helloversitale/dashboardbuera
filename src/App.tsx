@@ -40,6 +40,9 @@ function App() {
               
               <Route element={<ProtectedRoute allowedRoles={['admin', 'manager']} />}>
                 <Route path="/team" element={<TeamAccess />} />
+              </Route>
+              
+              <Route element={<ProtectedRoute allowedRoles={['admin', 'manager', 'staff']} />}>
                 <Route path="/blacklist" element={<BlacklistTable />} />
               </Route>
 
