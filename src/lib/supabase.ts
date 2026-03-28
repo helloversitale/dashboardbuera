@@ -17,6 +17,15 @@ export interface Customer {
   updated_at: string;
 }
 
+export interface Staff {
+  id: string;
+  full_name: string;
+  role: 'admin' | 'manager' | 'staff';
+  avatar_url?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Vehicle {
   id: string;
   name_title: string;
@@ -50,8 +59,10 @@ export interface Booking {
   status: 'pending' | 'confirmed' | 'active' | 'completed' | 'cancelled';
   total_price: number;
   notes?: string;
+  assigned_staff_id?: string;
   created_at: string;
   updated_at: string;
   customers?: Customer;
   vehicles?: Vehicle;
+  staff?: Staff;
 }

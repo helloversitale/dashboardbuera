@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { supabase, Customer, Vehicle } from '../lib/supabase';
-import { X, Save, Calendar, User, Car, DollarSign, FileText } from 'lucide-react';
+import { supabase, Customer, Vehicle, Staff } from '../lib/supabase';
+import { X, Save, Calendar, User, Car, DollarSign, FileText, UserCheck } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 interface BookingFormProps {
@@ -14,6 +14,7 @@ export default function BookingForm({ onClose, onSuccess, booking }: BookingForm
   const [loading, setLoading] = useState(false);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [staff, setStaff] = useState<Staff[]>([]);
   
   const [formData, setFormData] = useState({
     customer_id: booking?.customer_id || '',
@@ -23,6 +24,7 @@ export default function BookingForm({ onClose, onSuccess, booking }: BookingForm
     total_price: booking?.total_price || 0,
     status: booking?.status || 'pending',
     notes: booking?.notes || '',
+    assigned_staff_id: booking?.assigned_staff_id || user?.id || '',
   });
 
   const [isNewCustomer, setIsNewCustomer] = useState(false);
@@ -38,12 +40,14 @@ export default function BookingForm({ onClose, onSuccess, booking }: BookingForm
 
   async function fetchInitialData() {
     try {
-      const [customersRes, vehiclesRes] = await Promise.all([
+      const [customersRes, vehiclesRes, staffRes] = await Promise.all([
         supabase.from('customers').select('*').order('full_name'),
-        supabase.from('vehicles').select('*').eq('status', 'available').order('name_title')
+        supabase.from('vehicles').select('*').eq('status', 'available').order('name_title'),
+        supabase.from('staff').select('*').order('full_name')
       ]);
 
       if (customersRes.data) setCustomers(customersRes.data);
+      if (staffRes.data) setStaff(staffRes.data);
       if (vehiclesRes.data) {
         if (booking?.vehicle_id) {
             const { data: currentVehicle } = await supabase.from('vehicles').select('*').eq('id', booking.vehicle_id).single();
@@ -140,10 +144,10 @@ export default function BookingForm({ onClose, onSuccess, booking }: BookingForm
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Customer Selection */}
-            <div className="space-y-2 col-span-1 md:col-span-2">
+            <div className="space-y-1.5 col-span-full">
               <div className="flex items-center justify-between">
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
                   <User className="w-4 h-4 text-gray-400" />
@@ -174,7 +178,7 @@ export default function BookingForm({ onClose, onSuccess, booking }: BookingForm
                   ))}
                 </select>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in slide-in-from-top-2 duration-300">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 animate-in slide-in-from-top-2 duration-300">
                   <input
                     required
                     type="text"
@@ -196,61 +200,33 @@ export default function BookingForm({ onClose, onSuccess, booking }: BookingForm
             </div>
 
             {/* Vehicle Selection */}
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
                 <Car className="w-4 h-4 text-gray-400" />
-                Select Vehicle
+                Vehicle
               </label>
               <select
                 required
                 value={formData.vehicle_id}
                 onChange={(e) => setFormData({ ...formData, vehicle_id: e.target.value })}
-                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm"
               >
-                <option value="">Choose a vehicle...</option>
+                <option value="">Choose vehicle...</option>
                 {vehicles.map(v => (
-                  <option key={v.id} value={v.id}>{v.make} {v.model} - {v.license_plate} (${v.pricing_per_day}/day)</option>
+                  <option key={v.id} value={v.id}>{v.make} {v.model} - {v.license_plate}</option>
                 ))}
               </select>
             </div>
 
-            {/* Dates */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                Pick-up Date & Time
-              </label>
-              <input
-                required
-                type="datetime-local"
-                value={formData.pickup_datetime}
-                onChange={(e) => setFormData({ ...formData, pickup_datetime: e.target.value })}
-                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                Return Date & Time
-              </label>
-              <input
-                required
-                type="datetime-local"
-                value={formData.return_datetime}
-                onChange={(e) => setFormData({ ...formData, return_datetime: e.target.value })}
-                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+            {/* Status */}
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Status
               </label>
               <select
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm"
               >
                 <option value="pending">Pending</option>
                 <option value="confirmed">Confirmed</option>
@@ -260,7 +236,52 @@ export default function BookingForm({ onClose, onSuccess, booking }: BookingForm
               </select>
             </div>
 
-            <div className="space-y-2">
+            {/* Dates */}
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Pick-up Date & Time
+              </label>
+              <input
+                required
+                type="datetime-local"
+                value={formData.pickup_datetime}
+                onChange={(e) => setFormData({ ...formData, pickup_datetime: e.target.value })}
+                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Return Date & Time
+              </label>
+              <input
+                required
+                type="datetime-local"
+                value={formData.return_datetime}
+                onChange={(e) => setFormData({ ...formData, return_datetime: e.target.value })}
+                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm"
+              />
+            </div>
+
+            {/* Staff & Price */}
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                <UserCheck className="w-4 h-4 text-gray-400" />
+                Assigned To
+              </label>
+              <select
+                required
+                value={formData.assigned_staff_id}
+                onChange={(e) => setFormData({ ...formData, assigned_staff_id: e.target.value })}
+                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm"
+              >
+                {staff.map(s => (
+                  <option key={s.id} value={s.id}>{s.full_name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-1.5">
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
                 <DollarSign className="w-4 h-4 text-green-500" />
                 Total Price
@@ -270,24 +291,25 @@ export default function BookingForm({ onClose, onSuccess, booking }: BookingForm
                   type="number"
                   value={formData.total_price}
                   onChange={(e) => setFormData({ ...formData, total_price: parseFloat(e.target.value) })}
-                  className="w-full pl-8 pr-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white font-bold"
+                  className="w-full pl-8 pr-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white font-bold text-sm"
                 />
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">$</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
               </div>
             </div>
-          </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
-              <FileText className="w-4 h-4 text-gray-400" />
-              Notes / Special Requests
-            </label>
-            <textarea
-              value={formData.notes}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all h-24 resize-none"
-              placeholder="e.g. Needs baby seat, Full tank requested..."
-            />
+            {/* Notes */}
+            <div className="space-y-1.5 col-span-full">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                <FileText className="w-4 h-4 text-gray-400" />
+                Notes
+              </label>
+              <textarea
+                value={formData.notes}
+                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all h-20 resize-none text-sm"
+                placeholder="Special requests..."
+              />
+            </div>
           </div>
 
           <div className="pt-4 flex items-center gap-3">

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase, Booking } from '../lib/supabase';
-import { Calendar, AlertCircle, CheckCircle, Clock, Plus, Edit2, Check } from 'lucide-react';
+import { Calendar, AlertCircle, CheckCircle, Clock, Plus, Edit2, Check, User } from 'lucide-react';
 import BookingForm from './BookingForm';
 
 export default function BookingsTable() {
@@ -22,7 +22,8 @@ export default function BookingsTable() {
         .select(`
           *,
           customers (id, full_name, email),
-          vehicles (id, make, model, license_plate)
+          vehicles (id, make, model, license_plate),
+          staff:assigned_staff_id (id, full_name, avatar_url)
         `)
         .order('pickup_datetime', { ascending: true });
 
@@ -171,6 +172,9 @@ export default function BookingsTable() {
               <th className="px-3 md:px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Status
               </th>
+              <th className="hidden lg:table-cell px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Assigned To
+              </th>
               <th className="hidden sm:table-cell px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Price
               </th>
@@ -217,6 +221,20 @@ export default function BookingsTable() {
                   >
                     {booking.status}
                   </span>
+                </td>
+                <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap">
+                  <div className="flex items-center gap-2">
+                    {booking.staff?.avatar_url ? (
+                      <img src={booking.staff.avatar_url} className="w-6 h-6 rounded-full object-cover" alt="" />
+                    ) : (
+                      <div className="w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                        <User className="w-3 h-3 text-gray-400" />
+                      </div>
+                    )}
+                    <span className="text-sm text-gray-600 dark:text-gray-300">
+                      {(booking as any).staff?.full_name || 'Unassigned'}
+                    </span>
+                  </div>
                 </td>
                 <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap">
                   <div className="text-sm font-bold text-gray-900 dark:text-white">
