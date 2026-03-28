@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase, Booking } from '../lib/supabase';
-import { Calendar, AlertCircle, CheckCircle, Clock, Plus, Edit2, Trash2, Check, XCircle } from 'lucide-react';
+import { Calendar, AlertCircle, CheckCircle, Clock, Plus, Edit2, Check } from 'lucide-react';
 import BookingForm from './BookingForm';
 
 export default function BookingsTable() {
@@ -64,18 +64,6 @@ export default function BookingsTable() {
     }
   }
 
-  async function deleteBooking(id: string) {
-    if (!confirm('Are you sure you want to delete this booking?')) return;
-    try {
-      const { error } = await supabase.from('bookings').delete().eq('id', id);
-      if (error) throw error;
-      fetchBookings();
-    } catch (error) {
-      console.error('Error deleting booking:', error);
-      alert('Failed to delete booking');
-    }
-  }
-
   function handleEdit(booking: Booking) {
     setSelectedBooking(booking);
     setShowForm(true);
@@ -109,22 +97,6 @@ export default function BookingsTable() {
         return 'text-gray-600 bg-gray-50 dark:bg-gray-800/40';
     }
   }
-
-  function getStatusIcon(status: string) {
-    switch (status) {
-      case 'overdue':
-        return <AlertCircle className="w-3.5 h-3.5" />;
-      case 'confirmed':
-        return <CheckCircle className="w-3.5 h-3.5" />;
-      case 'active':
-        return <Clock className="w-3.5 h-3.5" />;
-      case 'pending':
-        return <Clock className="w-3.5 h-3.5" />;
-      default:
-        return <Calendar className="w-3.5 h-3.5" />;
-    }
-  }
-
 
   if (loading) {
     return (
@@ -184,25 +156,25 @@ export default function BookingsTable() {
         <table className="w-full text-left">
           <thead className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
             <tr>
-              <th className="px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <th className="px-3 md:px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Customer
               </th>
-              <th className="px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <th className="hidden lg:table-cell px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Vehicle
               </th>
-              <th className="px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <th className="hidden md:table-cell px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Pick Up
               </th>
-              <th className="px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <th className="hidden xl:table-cell px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Return
               </th>
-              <th className="px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <th className="px-3 md:px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Status
               </th>
-              <th className="px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Total Price
+              <th className="hidden sm:table-cell px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Price
               </th>
-              <th className="px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-right">
+              <th className="px-3 md:px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-right">
                 Actions
               </th>
             </tr>
@@ -213,15 +185,15 @@ export default function BookingsTable() {
                 key={booking.id}
                 className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group"
               >
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-3 md:px-6 py-4 whitespace-nowrap">
                   <div className="text-sm font-semibold text-gray-900 dark:text-white">
                     {booking.customers?.full_name || 'Unknown'}
                   </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                  <div className="text-xs text-gray-400 dark:text-gray-500 truncate max-w-[120px]">
                     {booking.customers?.email || ''}
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-gray-900 dark:text-gray-100">
                     {booking.vehicles
                       ? `${booking.vehicles.make} ${booking.vehicles.model}`
@@ -231,39 +203,34 @@ export default function BookingsTable() {
                     {booking.vehicles?.license_plate || ''}
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900 dark:text-gray-200">
-                    {formatDate(booking.pickup_datetime)}
-                  </div>
+                <td className="hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                  {formatDate(booking.pickup_datetime)}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900 dark:text-gray-200">
-                    {formatDate(booking.return_datetime)}
-                  </div>
+                <td className="hidden xl:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                  {formatDate(booking.return_datetime)}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-3 md:px-6 py-4 whitespace-nowrap">
                   <span
-                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wider ${getStatusColor(
                       booking.status
                     )}`}
                   >
-                    {getStatusIcon(booking.status)}
-                    {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                    {booking.status}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap">
                   <div className="text-sm font-bold text-gray-900 dark:text-white">
                     ${booking.total_price.toFixed(2)}
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right">
-                  <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <td className="px-3 md:px-6 py-4 whitespace-nowrap text-right">
+                  <div className="flex items-center justify-end gap-1 md:gap-2 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
                     {/* Status Actions */}
                     {booking.status === 'confirmed' && (
                        <button 
                         onClick={() => updateStatus(booking.id, 'active')}
-                        className="p-1.5 text-gray-400 hover:text-green-600 dark:hover:text-green-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" 
-                        title="Check-Out (Active)"
+                        className="p-1 text-gray-400 hover:text-green-600 dark:hover:text-green-400 rounded transition-colors" 
+                        title="Check-Out"
                       >
                         <Check className="w-4 h-4" />
                       </button>
@@ -271,38 +238,19 @@ export default function BookingsTable() {
                     {booking.status === 'active' && (
                        <button 
                         onClick={() => updateStatus(booking.id, 'completed')}
-                        className="p-1.5 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" 
-                        title="Check-In (Complete)"
+                        className="p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 rounded transition-colors" 
+                        title="Check-In"
                       >
                         <CheckCircle className="w-4 h-4" />
                       </button>
                     )}
-                    {['pending', 'confirmed'].includes(booking.status) && (
-                       <button 
-                        onClick={() => updateStatus(booking.id, 'cancelled')}
-                        className="p-1.5 text-gray-400 hover:text-red-500 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" 
-                        title="Cancel Booking"
-                      >
-                        <XCircle className="w-4 h-4" />
-                      </button>
-                    )}
-
-                    <div className="w-px h-4 bg-gray-200 dark:bg-gray-700 mx-1" />
-
-                    {/* General Actions */}
+                    
                     <button 
                       onClick={() => handleEdit(booking)}
-                      className="p-1.5 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" 
-                      title="Edit Booking"
+                      className="p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 rounded transition-colors" 
+                      title="Edit"
                     >
                       <Edit2 className="w-4 h-4" />
-                    </button>
-                    <button 
-                      onClick={() => deleteBooking(booking.id)}
-                      className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" 
-                      title="Delete Booking"
-                    >
-                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 </td>

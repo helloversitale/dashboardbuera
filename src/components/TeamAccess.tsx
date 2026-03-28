@@ -129,7 +129,7 @@ export default function TeamAccess() {
       )}
 
       {/* Role Definitions */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 border-b border-gray-200 dark:border-gray-700 divide-y lg:divide-y-0 lg:divide-x divide-gray-200 dark:divide-gray-700">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 border-b border-gray-200 dark:border-gray-700 divide-y md:divide-y-0 md:divide-x divide-gray-200 dark:divide-gray-700">
         <div className="p-6 text-center">
           <div className="flex justify-center mb-2">
             <Shield className="w-8 h-8 text-blue-600 dark:text-blue-400" />
@@ -164,7 +164,7 @@ export default function TeamAccess() {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Role
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <th className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Added
               </th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -186,7 +186,7 @@ export default function TeamAccess() {
                     )}
                     <div>
                       <div className="text-sm font-medium text-gray-900 dark:text-white">{member.full_name}</div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                      <div className="hidden md:flex text-xs text-gray-500 dark:text-gray-400 items-center gap-1">
                         <Mail className="w-3 h-3" /> {member.email}
                       </div>
                     </div>
@@ -201,7 +201,7 @@ export default function TeamAccess() {
                     {member.role}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap">
                   <span className="text-sm text-gray-500 dark:text-gray-400">
                     {new Date(member.created_at).toLocaleDateString()}
                   </span>

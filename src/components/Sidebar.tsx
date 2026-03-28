@@ -6,9 +6,11 @@ import { useAuth } from '../contexts/AuthContext';
 interface SidebarProps {
   isCollapsed: boolean;
   onToggleSidebar: () => void;
+  isMobileMenuOpen: boolean;
+  onCloseMobileMenu: () => void;
 }
 
-export default function Sidebar({ isCollapsed, onToggleSidebar }: SidebarProps) {
+export default function Sidebar({ isCollapsed, onToggleSidebar, isMobileMenuOpen, onCloseMobileMenu }: SidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { role } = useAuth();
@@ -17,6 +19,7 @@ export default function Sidebar({ isCollapsed, onToggleSidebar }: SidebarProps) 
 
   const navigateTo = (path: string) => {
     navigate(`/${path}`);
+    if (isMobileMenuOpen) onCloseMobileMenu();
   };
 
   const handleLogout = async () => {
@@ -25,7 +28,21 @@ export default function Sidebar({ isCollapsed, onToggleSidebar }: SidebarProps) 
   };
 
   return (
-    <div className={`${isCollapsed ? 'w-20' : 'w-64'} bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 flex flex-col h-screen transition-all duration-300 overflow-hidden z-20`}>
+    <>
+      {/* Mobile Overlay Backdrop */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-30 lg:hidden"
+          onClick={onCloseMobileMenu}
+        />
+      )}
+
+      <div className={`
+        fixed inset-y-0 left-0 z-40 lg:relative lg:flex
+        ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        ${isCollapsed ? 'lg:w-20' : 'lg:w-64'} 
+        w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 flex flex-col h-screen transition-all duration-300 overflow-hidden
+      `}>
       <div className={`p-4 border-b border-gray-200 dark:border-gray-700 h-[73px] flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
         <div className="flex items-center gap-2 overflow-hidden">
           <Car className="w-6 h-6 text-blue-600 dark:text-blue-400 shrink-0" />
@@ -197,5 +214,6 @@ export default function Sidebar({ isCollapsed, onToggleSidebar }: SidebarProps) 
         </button>
       </div>
     </div>
+    </>
   );
 }

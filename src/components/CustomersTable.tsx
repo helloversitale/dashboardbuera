@@ -113,9 +113,9 @@ export default function CustomersTable() {
           <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
             <tr>
               <th className="px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Client</th>
-              <th className="px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Contact</th>
-              <th className="px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Driver's License</th>
-              <th className="px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Joined Date</th>
+              <th className="hidden md:table-cell px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Contact</th>
+              <th className="hidden lg:table-cell px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Driver's License</th>
+              <th className="hidden sm:table-cell px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Joined Date</th>
               <th className="px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-right">Actions</th>
             </tr>
           </thead>
@@ -137,7 +137,7 @@ export default function CustomersTable() {
                     </div>
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="hidden md:table-cell px-6 py-4 whitespace-nowrap">
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-300">
                       <Phone className="w-3.5 h-3.5" />
@@ -151,7 +151,7 @@ export default function CustomersTable() {
                     )}
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
+                <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
                    {customer.driver_license_id ? (
                      <div className="inline-flex items-center gap-1 font-mono bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded text-xs">
                        {customer.driver_license_id}
@@ -160,21 +160,21 @@ export default function CustomersTable() {
                      <span className="text-gray-400 dark:text-gray-600 italic">Not provided</span>
                    )}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                   {new Date(customer.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right">
-                  <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center justify-end gap-1 sm:gap-2">
                     <button 
                       onClick={() => handleEdit(customer)}
-                      className="p-1.5 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" 
+                      className="p-2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" 
                       title="Edit Client"
                     >
                       <Edit2 className="w-4 h-4" />
                     </button>
                     <button 
                       onClick={() => deleteCustomer(customer.id)}
-                      className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" 
+                      className="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" 
                       title="Delete Client"
                     >
                       <Trash2 className="w-4 h-4" />

@@ -174,80 +174,76 @@ export default function Dashboard() {
       )}
 
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">Dashboard Overview</h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-1">Monitor your performance and manage key activities.</p>
+      <div className="px-2 md:px-0">
+        <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">Dashboard Overview</h1>
+        <p className="text-sm md:text-base text-gray-500 dark:text-gray-400 mt-1">Monitor your performance and manage key activities.</p>
       </div>
 
       {/* Stats Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 px-2 md:px-0">
         {/* Total Revenue */}
-        <div className="bg-white dark:bg-gray-800/50 backdrop-blur-md rounded-2xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm hover:shadow-md transition-all group">
+        <div className="bg-white dark:bg-gray-800/50 backdrop-blur-md rounded-2xl border border-gray-100 dark:border-gray-700 p-4 md:p-6 shadow-sm hover:shadow-md transition-all group">
           <div className="flex justify-between items-start">
-            <div className="w-12 h-12 bg-green-50 dark:bg-green-900/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-              <DollarSign className="w-6 h-6 text-green-600 dark:text-green-400" />
+            <div className="w-10 h-10 md:w-12 md:h-12 bg-green-50 dark:bg-green-900/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+              <DollarSign className="w-5 h-5 md:w-6 md:h-6 text-green-600 dark:text-green-400" />
             </div>
-            <div className="flex items-center gap-1 text-green-600 dark:text-green-400 text-xs font-bold bg-green-50 dark:bg-green-900/40 px-2 py-1 rounded-full">
+            <div className="flex items-center gap-1 text-green-600 dark:text-green-400 text-[10px] md:text-xs font-bold bg-green-50 dark:bg-green-900/40 px-2 py-1 rounded-full text-nowrap">
               <TrendingUp className="w-3 h-3" />
               +12.5%
             </div>
           </div>
           <div className="mt-4">
-            <p className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Revenue</p>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Revenue</p>
+            <h3 className="text-lg md:text-2xl font-bold text-gray-900 dark:text-white mt-1">
               ${stats.revenue.toLocaleString('en-US', { minimumFractionDigits: 2 })}
             </h3>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">vs. previous period</p>
           </div>
         </div>
 
         {/* New Clients */}
-        <div className="bg-white dark:bg-gray-800/50 backdrop-blur-md rounded-2xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm hover:shadow-md transition-all group">
+        <div className="bg-white dark:bg-gray-800/50 backdrop-blur-md rounded-2xl border border-gray-100 dark:border-gray-700 p-4 md:p-6 shadow-sm hover:shadow-md transition-all group">
           <div className="flex justify-between items-start">
-            <div className="w-12 h-12 bg-orange-50 dark:bg-orange-900/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Users className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+            <div className="w-10 h-10 md:w-12 md:h-12 bg-orange-50 dark:bg-orange-900/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Users className="w-5 h-5 md:w-6 md:h-6 text-orange-600 dark:text-orange-400" />
             </div>
-            <div className="flex items-center gap-1 text-green-600 dark:text-green-400 text-xs font-bold bg-green-50 dark:bg-green-900/40 px-2 py-1 rounded-full">
+            <div className="flex items-center gap-1 text-green-600 dark:text-green-400 text-[10px] md:text-xs font-bold bg-green-50 dark:bg-green-900/40 px-2 py-1 rounded-full text-nowrap">
               <TrendingUp className="w-3 h-3" />
               +4.2%
             </div>
           </div>
           <div className="mt-4">
-            <p className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">New Clients</p>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.newClients}</h3>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">vs. previous period</p>
+            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Clients</p>
+            <h3 className="text-lg md:text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.newClients}</h3>
           </div>
         </div>
 
         {/* Active Bookings */}
-        <div className="bg-white dark:bg-gray-800/50 backdrop-blur-md rounded-2xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm hover:shadow-md transition-all group">
+        <div className="bg-white dark:bg-gray-800/50 backdrop-blur-md rounded-2xl border border-gray-100 dark:border-gray-700 p-4 md:p-6 shadow-sm hover:shadow-md transition-all group">
           <div className="flex justify-between items-start">
-            <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-              <CheckCircle2 className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+            <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-50 dark:bg-blue-900/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+              <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-blue-600 dark:text-blue-400" />
             </div>
-            <div className="flex items-center gap-1 text-red-600 dark:text-red-400 text-xs font-bold bg-red-50 dark:bg-red-900/40 px-2 py-1 rounded-full">
+            <div className="flex items-center gap-1 text-red-600 dark:text-red-400 text-[10px] md:text-xs font-bold bg-red-50 dark:bg-red-900/40 px-2 py-1 rounded-full text-nowrap">
               <TrendingUp className="w-3 h-3 rotate-180" />
               -2.1%
             </div>
           </div>
           <div className="mt-4">
-            <p className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Active Bookings</p>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.activeBookings}</h3>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Current rentals</p>
+            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Active</p>
+            <h3 className="text-lg md:text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.activeBookings}</h3>
           </div>
         </div>
 
         {/* Pending */}
-        <div className="bg-white dark:bg-gray-800/50 backdrop-blur-md rounded-2xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm hover:shadow-md transition-all group">
+        <div className="bg-white dark:bg-gray-800/50 backdrop-blur-md rounded-2xl border border-gray-100 dark:border-gray-700 p-4 md:p-6 shadow-sm hover:shadow-md transition-all group">
           <div className="flex justify-between items-start">
-            <div className="w-12 h-12 bg-purple-50 dark:bg-purple-900/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Clock className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+            <div className="w-10 h-10 md:w-12 md:h-12 bg-purple-50 dark:bg-purple-900/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Clock className="w-5 h-5 md:w-6 md:h-6 text-purple-600 dark:text-purple-400" />
             </div>
           </div>
           <div className="mt-4">
-            <p className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Pending</p>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.pendingBookings}</h3>
-            <p className="text-xs text-amber-600 dark:text-amber-500 mt-1 font-medium">Urgent actions</p>
+            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Pending</p>
+            <h3 className="text-lg md:text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.pendingBookings}</h3>
           </div>
         </div>
       </div>
@@ -279,31 +275,31 @@ export default function Dashboard() {
               upcomingBookings.map((booking) => (
                 <div 
                   key={booking.id}
-                  className="bg-white dark:bg-gray-800/40 p-4 rounded-xl border border-gray-100 dark:border-gray-700 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors shadow-sm"
+                  className="bg-white dark:bg-gray-800/40 p-3 md:p-4 rounded-xl border border-gray-100 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors shadow-sm gap-3"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white font-bold shadow-lg shadow-orange-500/20">
+                  <div className="flex items-center gap-3 overflow-hidden">
+                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white font-bold shadow-lg shadow-orange-500/20 shrink-0">
                       {booking.customers?.full_name?.charAt(0) || '?'}
                     </div>
-                    <div>
-                      <h4 className="font-bold text-gray-900 dark:text-white uppercase text-sm tracking-wide">
+                    <div className="min-w-0">
+                      <h4 className="font-bold text-gray-900 dark:text-white uppercase text-xs md:text-sm tracking-wide truncate">
                         {booking.customers?.full_name || 'Anonymous Client'}
                       </h4>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2 mt-0.5">
-                        <Car className="w-3 h-3" />
+                      <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1.5 mt-0.5 truncate">
+                        <Car className="w-3 h-3 shrink-0" />
                         {booking.vehicles?.make} {booking.vehicles?.model} • {new Date(booking.pickup_datetime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${
+                  <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4 border-t sm:border-t-0 pt-2 sm:pt-0 border-gray-100 dark:border-gray-700">
+                    <span className={`px-2.5 py-0.5 rounded-full text-[9px] md:text-[10px] font-bold uppercase tracking-widest ${
                       booking.status === 'confirmed' 
                         ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800' 
                         : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200 dark:border-amber-800'
                     }`}>
                       {booking.status}
                     </span>
-                    <button className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                    <button className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
                       <MoreVertical className="w-5 h-5" />
                     </button>
                   </div>

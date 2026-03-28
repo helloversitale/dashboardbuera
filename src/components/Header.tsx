@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Bell, HelpCircle, Sun, Moon, User, LogOut } from 'lucide-react';
+import { Bell, HelpCircle, Sun, Moon, User, LogOut, Menu } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -7,9 +7,10 @@ import { useNavigate } from 'react-router-dom';
 
 interface HeaderProps {
   title: string;
+  onOpenMobileMenu: () => void;
 }
 
-export default function Header({ title }: HeaderProps) {
+export default function Header({ title, onOpenMobileMenu }: HeaderProps) {
   const { theme, toggleTheme } = useTheme();
   const { user, role, avatarUrl } = useAuth();
   const navigate = useNavigate();
@@ -47,11 +48,19 @@ export default function Header({ title }: HeaderProps) {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4 transition-colors relative h-[73px] flex items-center">
+    <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-4 md:px-6 py-4 transition-colors relative h-[73px] flex items-center">
       <div className="flex items-center justify-between w-full">
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">{title}</h1>
-          <HelpCircle className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+        <div className="flex items-center gap-2 md:gap-3">
+          <button 
+            onClick={onOpenMobileMenu}
+            className="p-2 -ml-2 lg:hidden text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+          <h1 className="text-xl md:text-2xl font-semibold text-gray-900 dark:text-white truncate max-w-[150px] sm:max-w-none">
+            {title}
+          </h1>
+          <HelpCircle className="w-5 h-5 text-gray-400 dark:text-gray-500 hidden sm:block" />
         </div>
 
         <div className="flex items-center gap-3">
