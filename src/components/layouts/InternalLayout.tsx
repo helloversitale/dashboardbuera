@@ -12,6 +12,8 @@ export default function InternalLayout() {
         return 'Home';
       case '/bookings':
         return 'Bookings';
+      case '/customers':
+        return 'Clients Management';
       case '/fleet':
         return 'Active Vehicle Inventory';
       case '/calendar':
