@@ -25,6 +25,13 @@ export default function BookingForm({ onClose, onSuccess, booking }: BookingForm
     notes: booking?.notes || '',
   });
 
+  const [isNewCustomer, setIsNewCustomer] = useState(false);
+  const [newCustomerData, setNewCustomerData] = useState({
+    full_name: '',
+    phone: '',
+    email: '',
+  });
+
   useEffect(() => {
     fetchInitialData();
   }, []);
@@ -38,7 +45,6 @@ export default function BookingForm({ onClose, onSuccess, booking }: BookingForm
 
       if (customersRes.data) setCustomers(customersRes.data);
       if (vehiclesRes.data) {
-        // If editing, include the current vehicle even if not 'available'
         if (booking?.vehicle_id) {
             const { data: currentVehicle } = await supabase.from('vehicles').select('*').eq('id', booking.vehicle_id).single();
             if (currentVehicle && !vehiclesRes.data.find(v => v.id === currentVehicle.id)) {
@@ -74,8 +80,26 @@ export default function BookingForm({ onClose, onSuccess, booking }: BookingForm
     setLoading(true);
 
     try {
+      let finalCustomerId = formData.customer_id;
+
+      // Handle New Customer Creation
+      if (isNewCustomer) {
+        if (!newCustomerData.full_name || !newCustomerData.phone) {
+          throw new Error('Please enter new client name and phone number');
+        }
+        const { data: newCust, error: custError } = await supabase
+          .from('customers')
+          .insert([newCustomerData])
+          .select()
+          .single();
+        
+        if (custError) throw custError;
+        finalCustomerId = newCust.id;
+      }
+
       const payload = {
         ...formData,
+        customer_id: finalCustomerId,
         staff_created_by: user.id,
       };
 
@@ -95,9 +119,9 @@ export default function BookingForm({ onClose, onSuccess, booking }: BookingForm
         await supabase.from('vehicles').update({ status: 'booked' }).eq('id', formData.vehicle_id);
       }
       onSuccess();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving booking:', error);
-      alert('Failed to save booking');
+      alert(error.message || 'Failed to save booking');
     } finally {
       setLoading(false);
     }
@@ -119,22 +143,56 @@ export default function BookingForm({ onClose, onSuccess, booking }: BookingForm
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Customer Selection */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                <User className="w-4 h-4 text-gray-400" />
-                Select Client
-              </label>
-              <select
-                required
-                value={formData.customer_id}
-                onChange={(e) => setFormData({ ...formData, customer_id: e.target.value })}
-                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-              >
-                <option value="">Choose a client...</option>
-                {customers.map(c => (
-                  <option key={c.id} value={c.id}>{c.full_name} ({c.phone})</option>
-                ))}
-              </select>
+            <div className="space-y-2 col-span-1 md:col-span-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                  <User className="w-4 h-4 text-gray-400" />
+                  Client Information
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="isNew"
+                    checked={isNewCustomer}
+                    onChange={(e) => setIsNewCustomer(e.target.checked)}
+                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                  <label htmlFor="isNew" className="text-xs font-semibold text-blue-600 dark:text-blue-400 cursor-pointer uppercase tracking-tight">New Client?</label>
+                </div>
+              </div>
+              
+              {!isNewCustomer ? (
+                <select
+                  required
+                  value={formData.customer_id}
+                  onChange={(e) => setFormData({ ...formData, customer_id: e.target.value })}
+                  className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                >
+                  <option value="">Choose a client...</option>
+                  {customers.map(c => (
+                    <option key={c.id} value={c.id}>{c.full_name} ({c.phone})</option>
+                  ))}
+                </select>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in slide-in-from-top-2 duration-300">
+                  <input
+                    required
+                    type="text"
+                    placeholder="Full Name"
+                    value={newCustomerData.full_name}
+                    onChange={(e) => setNewCustomerData({ ...newCustomerData, full_name: e.target.value })}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                  />
+                  <input
+                    required
+                    type="tel"
+                    placeholder="Phone Number"
+                    value={newCustomerData.phone}
+                    onChange={(e) => setNewCustomerData({ ...newCustomerData, phone: e.target.value })}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                  />
+                </div>
+              )}
             </div>
 
             {/* Vehicle Selection */}
