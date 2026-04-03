@@ -57,6 +57,7 @@ export interface Booking {
   pickup_datetime: string;
   return_datetime: string;
   status: 'pending' | 'confirmed' | 'active' | 'completed' | 'cancelled';
+  total_days: number;
   total_price: number;
   notes?: string;
   assigned_staff_id?: string;

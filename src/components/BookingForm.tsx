@@ -21,6 +21,7 @@ export default function BookingForm({ onClose, onSuccess, booking }: BookingForm
     vehicle_id: booking?.vehicle_id || '',
     pickup_datetime: booking?.pickup_datetime ? new Date(booking.pickup_datetime).toISOString().slice(0, 16) : '',
     return_datetime: booking?.return_datetime ? new Date(booking.return_datetime).toISOString().slice(0, 16) : '',
+    total_days: booking?.total_days || 1,
     total_price: booking?.total_price || 0,
     status: booking?.status || 'pending',
     notes: booking?.notes || '',
@@ -73,7 +74,7 @@ export default function BookingForm({ onClose, onSuccess, booking }: BookingForm
         const start = new Date(formData.pickup_datetime);
         const end = new Date(formData.return_datetime);
         const days = Math.max(1, Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)));
-        setFormData(prev => ({ ...prev, total_price: days * vehicle.pricing_per_day }));
+        setFormData(prev => ({ ...prev, total_days: days, total_price: days * vehicle.pricing_per_day }));
       }
     }
   }, [formData.vehicle_id, formData.pickup_datetime, formData.return_datetime, vehicles]);
@@ -251,9 +252,16 @@ export default function BookingForm({ onClose, onSuccess, booking }: BookingForm
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Return Date & Time
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Return Date & Time
+                </label>
+                {formData.pickup_datetime && formData.return_datetime && (
+                  <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/40 px-2 py-0.5 rounded border border-blue-100 dark:border-blue-800 animate-in fade-in slide-in-from-right-2">
+                    {Math.max(1, Math.ceil((new Date(formData.return_datetime).getTime() - new Date(formData.pickup_datetime).getTime()) / (1000 * 60 * 60 * 24)))} Days Rental
+                  </span>
+                )}
+              </div>
               <input
                 required
                 type="datetime-local"

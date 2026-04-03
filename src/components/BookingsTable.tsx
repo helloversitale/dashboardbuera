@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase, Booking } from '../lib/supabase';
-import { Calendar, AlertCircle, CheckCircle, Clock, Plus, Edit2, Check, User } from 'lucide-react';
+import { Calendar, AlertCircle, CheckCircle, Plus, Edit2, Check, User } from 'lucide-react';
 import BookingForm from './BookingForm';
 
 export default function BookingsTable() {
@@ -78,6 +78,14 @@ export default function BookingsTable() {
   function formatDate(dateString: string) {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  }
+
+  function calculateDays(start: string, end: string) {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays || 1;
   }
 
   function getStatusColor(status: string) {
@@ -169,6 +177,9 @@ export default function BookingsTable() {
               <th className="hidden xl:table-cell px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Return
               </th>
+              <th className="hidden md:table-cell px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Days
+              </th>
               <th className="px-3 md:px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Status
               </th>
@@ -212,6 +223,11 @@ export default function BookingsTable() {
                 </td>
                 <td className="hidden xl:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                   {formatDate(booking.return_datetime)}
+                </td>
+                <td className="hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-white text-center">
+                  <div className="bg-gray-100 dark:bg-gray-700/50 px-2 py-1 rounded-md">
+                    {booking.total_days || calculateDays(booking.pickup_datetime, booking.return_datetime)}
+                  </div>
                 </td>
                 <td className="px-3 md:px-6 py-4 whitespace-nowrap">
                   <span
