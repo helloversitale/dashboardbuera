@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase, Customer, Vehicle, Staff } from '../lib/supabase';
-import { X, Save, Calendar, User, Car, DollarSign, FileText, UserCheck } from 'lucide-react';
+import { X, Save, Calendar, User, Car, DollarSign, FileText, UserCheck, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 interface BookingFormProps {
@@ -38,6 +38,12 @@ export default function BookingForm({ onClose, onSuccess, booking }: BookingForm
     phone: '',
     email: '',
   });
+
+  const [blacklistWarning, setBlacklistWarning] = useState<{isBlacklisted: boolean, reason: string | null}>({
+    isBlacklisted: false,
+    reason: null
+  });
+  const [confirmedBlacklist, setConfirmedBlacklist] = useState(false);
 
   useEffect(() => {
     fetchInitialData();
@@ -83,9 +89,69 @@ export default function BookingForm({ onClose, onSuccess, booking }: BookingForm
     }
   }, [formData.vehicle_id, formData.pickup_datetime, formData.return_datetime, vehicles]);
 
+  // Check blacklist
+  useEffect(() => {
+    const checkBlacklist = async () => {
+      let name = '';
+      let phone = '';
+
+      if (isNewCustomer) {
+        name = newCustomerData.full_name.trim();
+        phone = newCustomerData.phone.trim();
+        
+        // Wait for a more complete input for new customers
+        if (name.length < 5 && phone.length < 6) {
+          setBlacklistWarning({ isBlacklisted: false, reason: null });
+          setConfirmedBlacklist(false);
+          return;
+        }
+      } else if (formData.customer_id) {
+        const selected = customers.find(c => c.id === formData.customer_id);
+        if (selected) {
+          name = selected.full_name;
+          phone = selected.phone;
+        }
+      }
+
+      if (name || phone) {
+        try {
+          const { data, error } = await supabase
+            .from('blacklisted_persons')
+            .select('reason')
+            .or(`full_name.ilike.${name},phone_number.eq.${phone}`)
+            .limit(1)
+            .maybeSingle();
+
+          if (data) {
+            setBlacklistWarning({ isBlacklisted: true, reason: data.reason });
+          } else {
+            setBlacklistWarning({ isBlacklisted: false, reason: null });
+            setConfirmedBlacklist(false);
+          }
+        } catch (err) {
+          console.error("Blacklist check failed", err);
+        }
+      } else {
+        setBlacklistWarning({ isBlacklisted: false, reason: null });
+        setConfirmedBlacklist(false);
+      }
+    };
+
+    const timer = setTimeout(checkBlacklist, 1000);
+    return () => clearTimeout(timer);
+  }, [formData.customer_id, newCustomerData.full_name, newCustomerData.phone, isNewCustomer, customers]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
+    
+    if (blacklistWarning.isBlacklisted && !confirmedBlacklist) {
+      if (!window.confirm(`Warning: This person is blacklisted (${blacklistWarning.reason || 'No reason provided'}). Are you SURE you want to proceed?`)) {
+        return;
+      }
+      setConfirmedBlacklist(true);
+    }
+
     setLoading(true);
 
     try {
@@ -200,6 +266,34 @@ export default function BookingForm({ onClose, onSuccess, booking }: BookingForm
                     onChange={(e) => setNewCustomerData({ ...newCustomerData, phone: e.target.value })}
                     className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                   />
+                </div>
+              )}
+
+              {blacklistWarning.isBlacklisted && (
+                <div className="mt-3 p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg flex items-start gap-3 animate-in shake duration-500">
+                  <div className="p-1.5 bg-red-100 dark:bg-red-900/50 rounded-full">
+                    <AlertTriangle className="w-4 h-4 text-red-600 dark:text-red-400" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-red-800 dark:text-red-200">
+                      Blacklisted Person Detected
+                    </p>
+                    <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                      Reason: <span className="italic">{blacklistWarning.reason || 'Not specified'}</span>
+                    </p>
+                    <div className="mt-2 flex items-center gap-2">
+                      <input 
+                        type="checkbox" 
+                        id="confirmBlacklist" 
+                        checked={confirmedBlacklist}
+                        onChange={(e) => setConfirmedBlacklist(e.target.checked)}
+                        className="w-3.5 h-3.5 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500"
+                      />
+                      <label htmlFor="confirmBlacklist" className="text-[11px] font-medium text-red-700 dark:text-red-300 cursor-pointer">
+                        I acknowledge this person is blacklisted and wish to proceed
+                      </label>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
