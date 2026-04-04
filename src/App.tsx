@@ -16,6 +16,7 @@ import TeamAccess from './components/TeamAccess';
 import Profile from './components/Profile';
 import CustomersTable from './components/CustomersTable';
 import BlacklistTable from './components/BlacklistTable';
+import ActivityLog from './components/ActivityLog';
 
 function App() {
   return (
@@ -44,6 +45,10 @@ function App() {
               
               <Route element={<ProtectedRoute allowedRoles={['admin', 'manager', 'staff']} />}>
                 <Route path="/blacklist" element={<BlacklistTable />} />
+              </Route>
+
+              <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+                <Route path="/activity" element={<ActivityLog />} />
               </Route>
 
               <Route path="*" element={<Navigate to="/bookings" replace />} />

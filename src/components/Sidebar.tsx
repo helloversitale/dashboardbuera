@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, ClipboardList, Car, Menu, ChevronDown, CalendarDays, Users, LogOut, UserX, PanelLeft, PanelRight } from 'lucide-react';
+import { Home, ClipboardList, Car, Menu, ChevronDown, CalendarDays, Users, LogOut, UserX, PanelLeft, PanelRight, ShieldAlert } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -184,6 +184,19 @@ export default function Sidebar({ isCollapsed, onToggleSidebar, isMobileMenuOpen
                 >
                   <UserX className="w-4 h-4 text-red-500" />
                   Black Listed
+                </button>
+              )}
+              {role === 'admin' && (
+                <button
+                  onClick={() => navigateTo('activity')}
+                  className={`w-full flex items-center gap-2 px-3 py-1.5 text-sm rounded transition-colors ${
+                    activeView === 'activity'
+                      ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
+                  }`}
+                >
+                  <ShieldAlert className="w-4 h-4 text-amber-500" />
+                  Activity Log
                 </button>
               )}
             </div>

@@ -170,6 +170,14 @@ export default function BookingForm({ onClose, onSuccess, booking }: BookingForm
         
         if (custError) throw custError;
         finalCustomerId = newCust.id;
+
+        // Log: New Client Added
+        await supabase.from('audit_logs').insert({
+          action_type: 'NEW_CLIENT_ADDED',
+          staff_id: user.id,
+          target_id: newCust.id,
+          details: { name: newCustomerData.full_name, phone: newCustomerData.phone }
+        });
       }
 
       const payload = {
@@ -184,15 +192,48 @@ export default function BookingForm({ onClose, onSuccess, booking }: BookingForm
           .update(payload)
           .eq('id', booking.id);
         if (error) throw error;
+        
+        // Log: Booking Updated
+        await supabase.from('audit_logs').insert({
+          action_type: 'BOOKING_UPDATED',
+          staff_id: user.id,
+          target_id: booking.id,
+          details: { status: payload.status, total_price: payload.total_price }
+        });
       } else {
-        const { error } = await supabase
+        const { data: newBooking, error } = await supabase
           .from('bookings')
-          .insert([payload]);
+          .insert([payload])
+          .select()
+          .single();
         if (error) throw error;
+
+        // Log: Booking Created
+        await supabase.from('audit_logs').insert({
+          action_type: 'BOOKING_CREATED',
+          staff_id: user.id,
+          target_id: newBooking.id,
+          details: { 
+            customer_id: finalCustomerId, 
+            vehicle_id: formData.vehicle_id, 
+            assigned_staff_id: formData.assigned_staff_id 
+          }
+        });
 
         // Also update vehicle status to 'booked'
         await supabase.from('vehicles').update({ status: 'booked' }).eq('id', formData.vehicle_id);
       }
+
+      // Log: Staff Assigned
+      if (formData.assigned_staff_id) {
+        await supabase.from('audit_logs').insert({
+          action_type: 'CLIENT_ASSIGNED',
+          staff_id: user.id,
+          target_id: formData.assigned_staff_id,
+          details: { customer_id: finalCustomerId, booking_id: booking?.id || 'new' }
+        });
+      }
+
       onSuccess();
     } catch (error: any) {
       console.error('Error saving booking:', error);

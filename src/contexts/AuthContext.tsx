@@ -73,11 +73,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('[AuthContext] Auth event:', event);
       setUser(session?.user ?? null);
+      
       if (session?.user) {
+        if (event === 'SIGNED_IN') {
+           await supabase.from('audit_logs').insert({
+             action_type: 'SIGNED_IN',
+             staff_id: session.user.id,
+             details: { method: 'auth.onAuthStateChange' }
+           });
+        }
         fetchProfileData(session.user.id);
       } else {
+        if (event === 'SIGNED_OUT') {
+           // Since user is null, we can't easily record which exact staff logged out 
+           // here unless we track it in local state before nulling it out.
+        }
         setRole(null);
         setAvatarUrl(null);
         setLoading(false);
