@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Activity, User, Calendar, Info, Search, Filter, ShieldCheck, UserPlus, LogIn, LogOut, Trash2, Edit, Save } from 'lucide-react';
+import { Activity, User, Calendar, Info, Search, ShieldCheck, UserPlus, LogIn, LogOut, Trash2, Edit, Save } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface AuditLog {
@@ -94,9 +94,12 @@ export default function ActivityLog() {
   };
 
   const filteredLogs = logs.filter(log => {
+      const staffName = log.staff?.full_name || '';
+      const detailsStr = JSON.stringify(log.details || {});
+      
       const matchesSearch = 
-        log.staff?.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        JSON.stringify(log.details).toLowerCase().includes(searchTerm.toLowerCase());
+        staffName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        detailsStr.toLowerCase().includes(searchTerm.toLowerCase());
       
       const matchesFilter = filterAction === 'all' || log.action_type === filterAction;
       

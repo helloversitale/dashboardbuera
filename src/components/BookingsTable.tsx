@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase, Booking } from '../lib/supabase';
 import { Calendar, AlertCircle, CheckCircle, Plus, Edit2, Check, User } from 'lucide-react';
 import BookingForm from './BookingForm';
+import BookingDetailsModal from './BookingDetailsModal';
 
 export default function BookingsTable() {
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -9,6 +10,7 @@ export default function BookingsTable() {
   const [filter, setFilter] = useState<'all' | 'overdue'>('all');
   const [showForm, setShowForm] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | undefined>(undefined);
+  const [viewingBooking, setViewingBooking] = useState<Booking | undefined>(undefined);
 
   useEffect(() => {
     fetchBookings();
@@ -127,6 +129,20 @@ export default function BookingsTable() {
           }} 
         />
       )}
+      {viewingBooking && (
+        <BookingDetailsModal 
+          booking={viewingBooking}
+          onClose={() => setViewingBooking(undefined)}
+          onUpdateStatus={async (id, status) => {
+            await updateStatus(id, status);
+            setViewingBooking(undefined);
+          }}
+          onEdit={(booking) => {
+            setViewingBooking(undefined);
+            handleEdit(booking);
+          }}
+        />
+      )}
       <div className="p-4 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -198,7 +214,8 @@ export default function BookingsTable() {
             {bookings.map((booking) => (
               <tr
                 key={booking.id}
-                className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group"
+                onClick={() => setViewingBooking(booking)}
+                className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group cursor-pointer"
               >
                 <td className="px-3 md:px-6 py-4 whitespace-nowrap">
                   <div className="text-sm font-semibold text-gray-900 dark:text-white">

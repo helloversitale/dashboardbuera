@@ -27,34 +27,38 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const fetchProfileData = async (userId: string) => {
     console.log('[AuthContext] Fetching profile data for user:', userId);
     
-    // Fetch role and avatar_url from the staff table
-    const { data, error } = await supabase
-      .from('staff')
-      .select('role, avatar_url')
-      .eq('id', userId)
-      .single();
-    
-    if (!error && data) {
-      console.log('[AuthContext] Profile data fetched:', data);
-      setRole(data.role);
-      setAvatarUrl(data.avatar_url);
-      setLoading(false);
-      return;
-    }
+    try {
+      // Fetch role and avatar_url from the staff table
+      const { data, error } = await supabase
+        .from('staff')
+        .select('role, avatar_url')
+        .eq('id', userId)
+        .single();
+      
+      if (!error && data) {
+        console.log('[AuthContext] Profile data fetched:', data);
+        setRole(data.role);
+        setAvatarUrl(data.avatar_url);
+        setLoading(false);
+        return;
+      }
 
-    console.warn('[AuthContext] Profile table query failed, trying RPC fallback for role:', error?.message);
-    
-    // Fallback: use the SECURITY DEFINER function that bypasses RLS for role only
-    const { data: rpcData, error: rpcError } = await supabase.rpc('get_my_role');
-    
-    if (!rpcError && rpcData) {
-      console.log('[AuthContext] Role fetched via RPC:', rpcData);
-      setRole(rpcData);
-    } else {
-      console.error('[AuthContext] RPC fallback also failed:', rpcError?.message);
+      console.warn('[AuthContext] Profile table query failed, trying RPC fallback for role:', error?.message);
+      
+      // Fallback: use the SECURITY DEFINER function that bypasses RLS for role only
+      const { data: rpcData, error: rpcError } = await supabase.rpc('get_my_role');
+      
+      if (!rpcError && rpcData) {
+        console.log('[AuthContext] Role fetched via RPC:', rpcData);
+        setRole(rpcData);
+      } else {
+        console.error('[AuthContext] RPC fallback also failed:', rpcError?.message);
+      }
+    } catch (err) {
+      console.error('[AuthContext] Error in fetchProfileData:', err);
+    } finally {
+      setLoading(false);
     }
-    
-    setLoading(false);
   };
 
   const refreshProfile = async () => {
@@ -73,24 +77,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    let lastLoggedSignIn: number = 0;
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log('[AuthContext] Auth event:', event);
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        if (event === 'SIGNED_IN') {
-           await supabase.from('audit_logs').insert({
-             action_type: 'SIGNED_IN',
-             staff_id: session.user.id,
-             details: { method: 'auth.onAuthStateChange' }
-           });
+        // Log SIGNED_IN in the background with a 1-minute deduplication window
+        const now = Date.now();
+        if (event === 'SIGNED_IN' && (now - lastLoggedSignIn > 60000)) {
+          lastLoggedSignIn = now;
+          supabase.from('audit_logs').insert({
+            action_type: 'SIGNED_IN',
+            staff_id: session.user.id,
+            details: { method: 'auth.onAuthStateChange', timestamp: now }
+          }).then(({ error }) => {
+            if (error) console.warn('[AuthContext] Failed to log SIGNED_IN event:', error);
+          });
         }
         fetchProfileData(session.user.id);
       } else {
-        if (event === 'SIGNED_OUT') {
-           // Since user is null, we can't easily record which exact staff logged out 
-           // here unless we track it in local state before nulling it out.
-        }
         setRole(null);
         setAvatarUrl(null);
         setLoading(false);
