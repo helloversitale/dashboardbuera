@@ -6,7 +6,7 @@ import BookingForm from './BookingForm';
 export default function BookingsTable() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'overdue'>('overdue');
+  const [filter, setFilter] = useState<'all' | 'overdue'>('all');
   const [showForm, setShowForm] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | undefined>(undefined);
 
@@ -131,16 +131,6 @@ export default function BookingsTable() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setFilter('overdue')}
-              className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
-                filter === 'overdue'
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-              }`}
-            >
-              Overdue
-            </button>
-            <button
               onClick={() => setFilter('all')}
               className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
                 filter === 'all'
@@ -149,6 +139,16 @@ export default function BookingsTable() {
               }`}
             >
               All Bookings
+            </button>
+            <button
+              onClick={() => setFilter('overdue')}
+              className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                filter === 'overdue'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+              }`}
+            >
+              Overdue
             </button>
           </div>
           <button 

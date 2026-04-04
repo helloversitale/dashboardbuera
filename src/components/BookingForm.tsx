@@ -15,6 +15,10 @@ export default function BookingForm({ onClose, onSuccess, booking }: BookingForm
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [staff, setStaff] = useState<Staff[]>([]);
+
+  const currentYear = new Date().getFullYear();
+  const minDate = new Date().toISOString().slice(0, 10) + 'T00:00';
+  const maxDate = `${currentYear + 1}-12-31T23:59`;
   
   const [formData, setFormData] = useState({
     customer_id: booking?.customer_id || '',
@@ -242,13 +246,18 @@ export default function BookingForm({ onClose, onSuccess, booking }: BookingForm
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Pick-up Date & Time
               </label>
-              <input
-                required
-                type="datetime-local"
-                value={formData.pickup_datetime}
-                onChange={(e) => setFormData({ ...formData, pickup_datetime: e.target.value })}
-                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm"
-              />
+              <div className="relative group">
+                <input
+                  required
+                  type="datetime-local"
+                  min={minDate}
+                  max={maxDate}
+                  value={formData.pickup_datetime}
+                  onChange={(e) => setFormData({ ...formData, pickup_datetime: e.target.value })}
+                  className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm appearance-none"
+                />
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500 group-hover:text-blue-600 transition-colors pointer-events-none" />
+              </div>
             </div>
 
             <div className="space-y-1.5">
@@ -262,13 +271,18 @@ export default function BookingForm({ onClose, onSuccess, booking }: BookingForm
                   </span>
                 )}
               </div>
-              <input
-                required
-                type="datetime-local"
-                value={formData.return_datetime}
-                onChange={(e) => setFormData({ ...formData, return_datetime: e.target.value })}
-                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm"
-              />
+              <div className="relative group">
+                <input
+                  required
+                  type="datetime-local"
+                  min={formData.pickup_datetime || minDate}
+                  max={maxDate}
+                  value={formData.return_datetime}
+                  onChange={(e) => setFormData({ ...formData, return_datetime: e.target.value })}
+                  className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm appearance-none"
+                />
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500 group-hover:text-blue-600 transition-colors pointer-events-none" />
+              </div>
             </div>
 
             {/* Staff & Price */}
