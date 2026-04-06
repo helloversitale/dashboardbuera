@@ -107,30 +107,30 @@ export default function Dashboard() {
         setRecentActivity([
           {
             id: 'act-1',
-            action_type: 'new_booking',
+            action_type: 'BOOKING_CREATED',
             created_at: new Date(Date.now() - 120000).toISOString(),
             details: { target: 'Booking #882' },
             staff: { full_name: 'Sarah M.' }
           },
           {
             id: 'act-2',
-            action_type: 'session_created',
+            action_type: 'SIGNED_IN',
             created_at: new Date(Date.now() - 3600000).toISOString(),
-            details: { target: 'Advanced Crossfit' },
+            details: { target: 'System' },
             staff: { full_name: 'Admin' }
           },
           {
             id: 'act-3',
-            action_type: 'profile_update',
+            action_type: 'VEHICLE_STATUS_CHANGED',
             created_at: new Date(Date.now() - 10800000).toISOString(),
-            details: { target: 'User Bio' },
+            details: { target: 'Vehicle Maintenance' },
             staff: { full_name: 'Alex Moreno' }
           },
           {
             id: 'act-4',
-            action_type: 'system_backup',
+            action_type: 'NEW_CLIENT_ADDED',
             created_at: new Date(Date.now() - 86400000).toISOString(),
-            details: { target: 'Weekly snapshot' },
+            details: { target: 'Client Record' },
             staff: { full_name: 'System' }
           }
         ]);

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Activity, User, Calendar, Info, Search, ShieldCheck, UserPlus, LogIn, LogOut, Trash2, Edit, Save } from 'lucide-react';
+import { Activity, User, Calendar, Info, Search, ShieldCheck, UserPlus, LogIn, LogOut, Trash2, Edit, Save, Car } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface AuditLog {
@@ -55,8 +55,12 @@ export default function ActivityLog() {
       case 'BOOKING_CREATED': return <Save className="w-4 h-4 text-green-600" />;
       case 'BOOKING_UPDATED': return <Edit className="w-4 h-4 text-amber-500" />;
       case 'VEHICLE_ADDED': return <Activity className="w-4 h-4 text-indigo-500" />;
+      case 'VEHICLE_UPDATED': return <Edit className="w-4 h-4 text-indigo-500" />;
+      case 'VEHICLE_STATUS_CHANGED': return <Car className="w-4 h-4 text-indigo-600" />;
       case 'VEHICLE_DELETED': return <Trash2 className="w-4 h-4 text-red-600" />;
       case 'BLACKLIST_ADDED': return <User className="w-4 h-4 text-red-500" />;
+      case 'BLACKLIST_UPDATED': return <Edit className="w-4 h-4 text-orange-500" />;
+      case 'CLIENT_UPDATED': return <Edit className="w-4 h-4 text-blue-500" />;
       default: return <Info className="w-4 h-4 text-gray-400" />;
     }
   };
@@ -84,10 +88,18 @@ export default function ActivityLog() {
         return `Updated booking status to ${d.status || 'unknown'}`;
       case 'VEHICLE_ADDED':
         return `Added new vehicle to fleet`;
+      case 'VEHICLE_UPDATED':
+        return `Updated vehicle details: ${d.make} ${d.model}`;
+      case 'VEHICLE_STATUS_CHANGED':
+        return `Changed vehicle status to ${d.new_status} (${d.make} ${d.model})`;
       case 'VEHICLE_DELETED':
         return `Removed vehicle from active inventory`;
       case 'BLACKLIST_ADDED':
-        return `Added person to blacklist`;
+        return `Added ${d.name || 'person'} to blacklist`;
+      case 'BLACKLIST_UPDATED':
+        return `Updated blacklist details for ${d.name || 'person'}`;
+      case 'CLIENT_UPDATED':
+        return `Updated client details: ${d.name || 'Unknown'}`;
       default:
         return typeof d === 'string' ? d : JSON.stringify(d);
     }
@@ -142,8 +154,12 @@ export default function ActivityLog() {
                 <option value="SIGNED_IN">Sign Ins</option>
                 <option value="SIGNED_OUT">Sign Outs</option>
                 <option value="NEW_CLIENT_ADDED">New Clients</option>
+                <option value="CLIENT_UPDATED">Client Updates</option>
                 <option value="CLIENT_ASSIGNED">Assignments</option>
-                <option value="BOOKING_CREATED">Bookings</option>
+                <option value="BOOKING_CREATED">Bookings Created</option>
+                <option value="BOOKING_UPDATED">Bookings Updated</option>
+                <option value="VEHICLE_ADDED">Vehicles Added</option>
+                <option value="VEHICLE_STATUS_CHANGED">Vehicle Status Changes</option>
                 <option value="BLACKLIST_ADDED">Blacklist Events</option>
             </select>
         </div>

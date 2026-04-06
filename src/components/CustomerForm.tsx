@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { X, Save, User, Phone, Mail, CreditCard, MapPin } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 interface CustomerFormProps {
   onClose: () => void;
@@ -9,6 +10,7 @@ interface CustomerFormProps {
 }
 
 export default function CustomerForm({ onClose, onSuccess, customer }: CustomerFormProps) {
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     full_name: customer?.full_name || '',
@@ -29,11 +31,27 @@ export default function CustomerForm({ onClose, onSuccess, customer }: CustomerF
           .update(formData)
           .eq('id', customer.id);
         if (error) throw error;
+        
+        if (user) {
+          await supabase.from('audit_logs').insert({
+            action_type: 'CLIENT_UPDATED',
+            staff_id: user.id,
+            details: { customer_id: customer.id, name: formData.full_name, phone: formData.phone }
+          });
+        }
       } else {
         const { error } = await supabase
           .from('customers')
           .insert([formData]);
         if (error) throw error;
+
+        if (user) {
+          await supabase.from('audit_logs').insert({
+            action_type: 'NEW_CLIENT_ADDED',
+            staff_id: user.id,
+            details: { name: formData.full_name, phone: formData.phone }
+          });
+        }
       }
       onSuccess();
     } catch (error) {

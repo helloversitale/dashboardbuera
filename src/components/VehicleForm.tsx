@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { supabase, Vehicle } from '../lib/supabase';
 import { X, Save, Car, DollarSign, Settings } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 interface VehicleFormProps {
   onClose: () => void;
@@ -9,6 +10,7 @@ interface VehicleFormProps {
 }
 
 export default function VehicleForm({ onClose, onSuccess, vehicle }: VehicleFormProps) {
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     make: vehicle?.make || '',
@@ -32,11 +34,33 @@ export default function VehicleForm({ onClose, onSuccess, vehicle }: VehicleForm
           .update(formData)
           .eq('id', vehicle.id);
         if (error) throw error;
+        
+        if (user) {
+          await supabase.from('audit_logs').insert({
+            action_type: vehicle.status !== formData.status ? 'VEHICLE_STATUS_CHANGED' : 'VEHICLE_UPDATED',
+            staff_id: user.id,
+            details: { 
+              vehicle_id: vehicle.id, 
+              make: formData.make, 
+              model: formData.model,
+              old_status: vehicle.status,
+              new_status: formData.status
+            }
+          });
+        }
       } else {
         const { error } = await supabase
           .from('vehicles')
           .insert([formData]);
         if (error) throw error;
+        
+        if (user) {
+          await supabase.from('audit_logs').insert({
+            action_type: 'VEHICLE_ADDED',
+            staff_id: user.id,
+            details: { make: formData.make, model: formData.model }
+          });
+        }
       }
       onSuccess();
     } catch (error) {

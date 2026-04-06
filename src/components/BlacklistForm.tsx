@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { X, Save, UserX, Phone, AlertCircle, Loader2 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 interface BlacklistFormProps {
   onClose: () => void;
@@ -14,6 +15,7 @@ interface BlacklistFormProps {
 }
 
 export default function BlacklistForm({ onClose, onSuccess, person }: BlacklistFormProps) {
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
@@ -34,11 +36,27 @@ export default function BlacklistForm({ onClose, onSuccess, person }: BlacklistF
           .update(formData)
           .eq('id', person.id);
         if (sbError) throw sbError;
+        
+        if (user) {
+          await supabase.from('audit_logs').insert({
+            action_type: 'BLACKLIST_UPDATED',
+            staff_id: user.id,
+            details: { person_id: person.id, name: formData.full_name, reason: formData.reason }
+          });
+        }
       } else {
         const { error: sbError } = await supabase
           .from('blacklisted_persons')
           .insert([formData]);
         if (sbError) throw sbError;
+
+        if (user) {
+          await supabase.from('audit_logs').insert({
+            action_type: 'BLACKLIST_ADDED',
+            staff_id: user.id,
+            details: { name: formData.full_name, reason: formData.reason }
+          });
+        }
       }
       onSuccess();
     } catch (err: any) {

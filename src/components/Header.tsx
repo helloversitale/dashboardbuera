@@ -28,6 +28,14 @@ export default function Header({ title, onOpenMobileMenu }: HeaderProps) {
   }, []);
 
   const handleLogout = async () => {
+    if (user) {
+      await supabase.from('audit_logs').insert({
+        action_type: 'SIGNED_OUT',
+        staff_id: user.id,
+        details: { method: 'header.logout' }
+      });
+      sessionStorage.removeItem(`last_login_${user.id}`);
+    }
     await supabase.auth.signOut();
   };
 
