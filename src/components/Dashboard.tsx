@@ -276,7 +276,10 @@ export default function Dashboard() {
                     }`}>
                       {booking.status}
                     </span>
-                    <button className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                    <button 
+                      onClick={(e) => e.stopPropagation()}
+                      className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                    >
                       <MoreVertical className="w-5 h-5" />
                     </button>
                   </div>

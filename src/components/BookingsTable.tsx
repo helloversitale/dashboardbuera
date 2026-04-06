@@ -386,7 +386,7 @@ export default function BookingsTable() {
                     {/* Status Actions */}
                     {booking.status === 'confirmed' && (
                        <button 
-                        onClick={() => updateStatus(booking.id, 'active')}
+                        onClick={(e) => { e.stopPropagation(); updateStatus(booking.id, 'active'); }}
                         className="p-1 text-gray-400 hover:text-green-600 dark:hover:text-green-400 rounded transition-colors" 
                         title="Check-Out"
                       >
@@ -395,7 +395,7 @@ export default function BookingsTable() {
                     )}
                     {booking.status === 'active' && (
                        <button 
-                        onClick={() => updateStatus(booking.id, 'completed')}
+                        onClick={(e) => { e.stopPropagation(); updateStatus(booking.id, 'completed'); }}
                         className="p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 rounded transition-colors" 
                         title="Check-In"
                       >
@@ -404,7 +404,7 @@ export default function BookingsTable() {
                     )}
                     
                     <button 
-                      onClick={() => handleEdit(booking)}
+                      onClick={(e) => { e.stopPropagation(); handleEdit(booking); }}
                       className="p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 rounded transition-colors" 
                       title="Edit"
                     >
