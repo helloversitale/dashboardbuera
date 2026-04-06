@@ -15,6 +15,7 @@ import {
 import BookingForm from './BookingForm';
 import VehicleForm from './VehicleForm';
 import CustomerForm from './CustomerForm';
+import BookingDetailsModal from './BookingDetailsModal';
 
 interface Stats {
   revenue: number;
@@ -42,6 +43,8 @@ export default function Dashboard() {
   });
   const [upcomingBookings, setUpcomingBookings] = useState<any[]>([]);
   const [recentActivity, setRecentActivity] = useState<ActivityLog[]>([]);
+  const [viewingBooking, setViewingBooking] = useState<any | null>(null);
+  const [selectedBooking, setSelectedBooking] = useState<any | undefined>(undefined);
   const [loading, setLoading] = useState(true);
 
   // Modal state
@@ -74,75 +77,15 @@ export default function Dashboard() {
 
       const totalRevenue = bookingsRes.data?.reduce((sum, booking) => sum + Number(booking.total_price), 0) || 0;
 
-      // Mock Data Fallback
-      if ((upcomingRes.data?.length || 0) === 0) {
-        setUpcomingBookings([
-          { 
-            id: 'mock-1', 
-            status: 'confirmed', 
-            pickup_datetime: new Date().toISOString(),
-            customers: { full_name: 'John Doe' },
-            vehicles: { make: 'Tesla', model: 'Model 3' }
-          },
-          { 
-            id: 'mock-2', 
-            status: 'pending', 
-            pickup_datetime: new Date(Date.now() + 86400000).toISOString(),
-            customers: { full_name: 'Jane Smith' },
-            vehicles: { make: 'BMW', model: 'X5' }
-          },
-          { 
-            id: 'mock-3', 
-            status: 'confirmed', 
-            pickup_datetime: new Date(Date.now() + 172800000).toISOString(),
-            customers: { full_name: 'Robert Brown' },
-            vehicles: { make: 'Audi', model: 'A6' }
-          }
-        ]);
-      } else {
-        setUpcomingBookings(upcomingRes.data || []);
-      }
+      setUpcomingBookings(upcomingRes.data || []);
 
-      if ((activityRes.data?.length || 0) === 0) {
-        setRecentActivity([
-          {
-            id: 'act-1',
-            action_type: 'BOOKING_CREATED',
-            created_at: new Date(Date.now() - 120000).toISOString(),
-            details: { target: 'Booking #882' },
-            staff: { full_name: 'Sarah M.' }
-          },
-          {
-            id: 'act-2',
-            action_type: 'SIGNED_IN',
-            created_at: new Date(Date.now() - 3600000).toISOString(),
-            details: { target: 'System' },
-            staff: { full_name: 'Admin' }
-          },
-          {
-            id: 'act-3',
-            action_type: 'VEHICLE_STATUS_CHANGED',
-            created_at: new Date(Date.now() - 10800000).toISOString(),
-            details: { target: 'Vehicle Maintenance' },
-            staff: { full_name: 'Alex Moreno' }
-          },
-          {
-            id: 'act-4',
-            action_type: 'NEW_CLIENT_ADDED',
-            created_at: new Date(Date.now() - 86400000).toISOString(),
-            details: { target: 'Client Record' },
-            staff: { full_name: 'System' }
-          }
-        ]);
-      } else {
-        setRecentActivity(activityRes.data || []);
-      }
+      setRecentActivity(activityRes.data || []);
 
       setStats({
-        revenue: totalRevenue > 0 ? totalRevenue : 2450.00,
-        newClients: (newClientsRes.count || 0) > 0 ? (newClientsRes.count || 0) : 24,
-        activeBookings: (activeRes.count || 0) > 0 ? (activeRes.count || 0) : 12,
-        pendingBookings: (pendingRes.count || 0) > 0 ? (pendingRes.count || 0) : 5,
+        revenue: totalRevenue,
+        newClients: newClientsRes.count || 0,
+        activeBookings: activeRes.count || 0,
+        pendingBookings: pendingRes.count || 0,
       });
 
     } catch (error) {
@@ -150,6 +93,27 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
+  }
+
+  async function handleUpdateStatus(id: string, status: string) {
+    try {
+      const { error } = await supabase
+        .from('bookings')
+        .update({ status })
+        .eq('id', id);
+
+      if (error) throw error;
+      fetchDashboardData();
+      setViewingBooking(null);
+    } catch (error) {
+      console.error('Error updating booking status:', error);
+    }
+  }
+
+  function handleEdit(booking: any) {
+    setSelectedBooking(booking);
+    setViewingBooking(null);
+    setModal('booking');
   }
 
   if (loading) {
@@ -164,13 +128,25 @@ export default function Dashboard() {
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Modals */}
       {modal === 'booking' && (
-        <BookingForm onClose={() => setModal(null)} onSuccess={() => { setModal(null); fetchDashboardData(); }} />
+        <BookingForm 
+          onClose={() => { setModal(null); setSelectedBooking(undefined); }} 
+          onSuccess={() => { setModal(null); setSelectedBooking(undefined); fetchDashboardData(); }} 
+          booking={selectedBooking}
+        />
       )}
       {modal === 'vehicle' && (
         <VehicleForm onClose={() => setModal(null)} onSuccess={() => { setModal(null); fetchDashboardData(); }} />
       )}
       {modal === 'customer' && (
         <CustomerForm onClose={() => setModal(null)} onSuccess={() => { setModal(null); fetchDashboardData(); }} />
+      )}
+      {viewingBooking && (
+        <BookingDetailsModal 
+          booking={viewingBooking} 
+          onClose={() => setViewingBooking(null)} 
+          onUpdateStatus={handleUpdateStatus}
+          onEdit={handleEdit}
+        />
       )}
 
       {/* Header */}
@@ -275,7 +251,8 @@ export default function Dashboard() {
               upcomingBookings.map((booking) => (
                 <div 
                   key={booking.id}
-                  className="bg-white dark:bg-gray-800/40 p-3 md:p-4 rounded-xl border border-gray-100 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors shadow-sm gap-3"
+                  onClick={() => setViewingBooking(booking)}
+                  className="bg-white dark:bg-gray-800/40 p-3 md:p-4 rounded-xl border border-gray-100 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors shadow-sm gap-3 cursor-pointer group"
                 >
                   <div className="flex items-center gap-3 overflow-hidden">
                     <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white font-bold shadow-lg shadow-orange-500/20 shrink-0">
