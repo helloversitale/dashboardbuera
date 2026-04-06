@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase, Booking, Staff } from '../lib/supabase';
-import { Calendar, AlertCircle, CheckCircle, Plus, Edit2, Check, User, X } from 'lucide-react';
+import { Calendar, AlertCircle, CheckCircle, Plus, Edit2, Check, User, X, Search } from 'lucide-react';
 import BookingForm from './BookingForm';
 import BookingDetailsModal from './BookingDetailsModal';
 
@@ -14,6 +14,7 @@ export default function BookingsTable() {
   const [showForm, setShowForm] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | undefined>(undefined);
   const [viewingBooking, setViewingBooking] = useState<Booking | undefined>(undefined);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     fetchStaff();
@@ -136,6 +137,17 @@ export default function BookingsTable() {
     }
   }
 
+  const filteredBookings = bookings.filter(booking => {
+    const search = searchTerm.toLowerCase();
+    const customerName = booking.customers?.full_name?.toLowerCase() || '';
+    const customerEmail = booking.customers?.email?.toLowerCase() || '';
+    const bookingId = booking.id.toLowerCase();
+    
+    return customerName.includes(search) || 
+           customerEmail.includes(search) || 
+           bookingId.includes(search);
+  });
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -229,12 +241,31 @@ export default function BookingsTable() {
             </select>
           </div>
 
+          <div className="flex-1 max-w-sm relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input 
+              type="text"
+              placeholder="Search by client or reference ID..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg pl-9 pr-4 py-1.5 text-xs text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+            />
+            {searchTerm && (
+              <button 
+                onClick={() => setSearchTerm('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            )}
+          </div>
+
           <div className="flex-1" />
 
           <div className="flex items-center gap-2">
-            {(statusFilter !== 'all' || staffFilter !== 'all') && (
+            {(statusFilter !== 'all' || staffFilter !== 'all' || searchTerm !== '') && (
               <button 
-                onClick={() => { setStatusFilter('all'); setStaffFilter('all'); }}
+                onClick={() => { setStatusFilter('all'); setStaffFilter('all'); setSearchTerm(''); }}
                 className="p-1.5 text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
                 title="Clear Filters"
               >
@@ -287,7 +318,7 @@ export default function BookingsTable() {
             </tr>
           </thead>
           <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-            {bookings.map((booking: Booking) => (
+            {filteredBookings.map((booking: Booking) => (
               <tr
                 key={booking.id}
                 onClick={() => setViewingBooking(booking)}
@@ -386,7 +417,7 @@ export default function BookingsTable() {
           </tbody>
         </table>
 
-        {bookings.length === 0 && (
+        {filteredBookings.length === 0 && (
           <div className="text-center py-12">
             <Calendar className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
             <p className="text-gray-500 dark:text-gray-400">No bookings found</p>
@@ -394,11 +425,11 @@ export default function BookingsTable() {
         )}
       </div>
 
-      {filter === 'overdue' && bookings.length > 0 && (
+      {filter === 'overdue' && filteredBookings.length > 0 && (
         <div className="px-6 py-3 bg-red-50 dark:bg-red-900/30 border-t border-red-100 dark:border-red-800">
           <div className="flex items-center gap-2 text-sm text-red-800 dark:text-red-300">
             <AlertCircle className="w-4 h-4" />
-            <span className="font-medium">{bookings.length} overdue items</span>
+            <span className="font-medium">{filteredBookings.length} overdue items</span>
             <span className="text-red-600 dark:text-red-400">require immediate attention</span>
           </div>
         </div>
