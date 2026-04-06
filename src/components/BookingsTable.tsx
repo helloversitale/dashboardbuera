@@ -47,7 +47,7 @@ export default function BookingsTable() {
           vehicles (id, make, model, license_plate),
           staff:assigned_staff_id (id, full_name, avatar_url)
         `)
-        .order('pickup_datetime', { ascending: true });
+        .order('created_at', { ascending: false });
 
       if (filter === 'overdue') {
         const now = new Date().toISOString();
