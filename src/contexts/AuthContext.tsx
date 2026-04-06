@@ -77,21 +77,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     });
 
-    let lastLoggedSignIn: number = 0;
-
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log('[AuthContext] Auth event:', event);
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        // Log SIGNED_IN in the background with a 1-minute deduplication window
+        // Only log SIGNED_IN if we haven't already marked this session as logged
+        const sessionMarker = sessionStorage.getItem(`last_login_${session.user.id}`);
         const now = Date.now();
-        if (event === 'SIGNED_IN' && (now - lastLoggedSignIn > 60000)) {
-          lastLoggedSignIn = now;
+        
+        // If event is SIGNED_IN and we haven't logged it in the last 24 hours in THIS browser session
+        if (event === 'SIGNED_IN' && !sessionMarker) {
+          sessionStorage.setItem(`last_login_${session.user.id}`, now.toString());
           supabase.from('audit_logs').insert({
             action_type: 'SIGNED_IN',
             staff_id: session.user.id,
-            details: { method: 'auth.onAuthStateChange', timestamp: now }
+            details: { method: 'auth.onAuthStateChange', refresh: false }
           }).then(({ error }) => {
             if (error) console.warn('[AuthContext] Failed to log SIGNED_IN event:', error);
           });
