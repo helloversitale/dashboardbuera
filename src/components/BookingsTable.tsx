@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { supabase, Booking } from '../lib/supabase';
-import { Calendar, AlertCircle, CheckCircle, Plus, Edit2, Check, User } from 'lucide-react';
+import { supabase, Booking, Staff } from '../lib/supabase';
+import { Calendar, AlertCircle, CheckCircle, Plus, Edit2, Check, User, X } from 'lucide-react';
 import BookingForm from './BookingForm';
 import BookingDetailsModal from './BookingDetailsModal';
 
@@ -8,13 +8,32 @@ export default function BookingsTable() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'overdue'>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [staffFilter, setStaffFilter] = useState<string>('all');
+  const [staffList, setStaffList] = useState<Staff[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | undefined>(undefined);
   const [viewingBooking, setViewingBooking] = useState<Booking | undefined>(undefined);
 
   useEffect(() => {
+    fetchStaff();
+  }, []);
+
+  useEffect(() => {
     fetchBookings();
-  }, [filter]);
+  }, [filter, statusFilter, staffFilter]);
+
+  async function fetchStaff() {
+    try {
+      const { data, error } = await supabase
+        .from('staff')
+        .select('*')
+        .order('full_name');
+      if (!error && data) setStaffList(data);
+    } catch (err) {
+      console.error('Error fetching staff:', err);
+    }
+  }
 
   async function fetchBookings() {
     setLoading(true);
@@ -34,6 +53,14 @@ export default function BookingsTable() {
         query = query
             .eq('status', 'active')
             .lt('return_datetime', now);
+      }
+
+      if (statusFilter !== 'all') {
+        query = query.eq('status', statusFilter);
+      }
+
+      if (staffFilter !== 'all') {
+        query = query.eq('assigned_staff_id', staffFilter);
       }
 
       const { data, error } = await query;
@@ -143,22 +170,22 @@ export default function BookingsTable() {
           }}
         />
       )}
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+      <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="flex items-center gap-1.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-1">
             <button
               onClick={() => setFilter('all')}
-              className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+              className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${
                 filter === 'all'
                   ? 'bg-blue-600 text-white shadow-sm'
                   : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
               }`}
             >
-              All Bookings
+              All
             </button>
             <button
               onClick={() => setFilter('overdue')}
-              className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+              className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${
                 filter === 'overdue'
                   ? 'bg-blue-600 text-white shadow-sm'
                   : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
@@ -167,13 +194,62 @@ export default function BookingsTable() {
               Overdue
             </button>
           </div>
-          <button 
-            onClick={handleAdd}
-            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            <span>New Booking</span>
-          </button>
+
+          <div className="h-8 w-px bg-gray-200 dark:bg-gray-700 mx-1 hidden sm:block" />
+
+          {/* STATUS Filter */}
+          <div className="flex flex-col gap-1">
+            <label className="text-[10px] font-bold uppercase text-gray-400 dark:text-gray-500 ml-1">Status</label>
+            <select 
+              value={statusFilter} 
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5 text-xs text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 outline-none w-32 md:w-36 transition-all"
+            >
+              <option value="all">Any Status</option>
+              <option value="pending">Pending</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="active">Active</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+
+          {/* ASSIGNED TO Filter */}
+          <div className="flex flex-col gap-1">
+            <label className="text-[10px] font-bold uppercase text-gray-400 dark:text-gray-500 ml-1">Assigned To</label>
+            <select 
+              value={staffFilter} 
+              onChange={(e) => setStaffFilter(e.target.value)}
+              className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5 text-xs text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 outline-none w-32 md:w-44 transition-all"
+            >
+              <option value="all">Any Staff</option>
+              {staffList.map((s: Staff) => (
+                <option key={s.id} value={s.id}>{s.full_name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex-1" />
+
+          <div className="flex items-center gap-2">
+            {(statusFilter !== 'all' || staffFilter !== 'all') && (
+              <button 
+                onClick={() => { setStatusFilter('all'); setStaffFilter('all'); }}
+                className="p-1.5 text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                title="Clear Filters"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            )}
+            
+            <button 
+              onClick={handleAdd}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition-all shadow-md shadow-blue-500/20 flex items-center gap-2 active:scale-95"
+            >
+              <Plus className="w-4 h-4" />
+              <span>NEW BOOKING</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -211,7 +287,7 @@ export default function BookingsTable() {
             </tr>
           </thead>
           <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-            {bookings.map((booking) => (
+            {bookings.map((booking: Booking) => (
               <tr
                 key={booking.id}
                 onClick={() => setViewingBooking(booking)}
