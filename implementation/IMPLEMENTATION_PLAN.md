@@ -29,31 +29,35 @@ To maintain alignment with the existing dashboard:
 ## 3. Step-by-Step Implementation Execution
 
 ### Phase 1: Supabase Setup & Architecture
-1. **Initialize Supabase Project & Tables:** Set up Supabase as needed, creating all tables including the roles (staff, customers, vehicles, bookings, etc.).
-2. **Authentication Pages:** Create the signup and login pages.
-3. **Handle User Roles & Create Admin:** Handle user roles in the application logic. We will create our admin user manually on Supabase once we have the tables created (including roles).
-4. **Test Login And Roles:** Test the login functionality and role-based access.
+1. [x] **Initialize Supabase Project & Tables:** Set up Supabase as needed, creating all tables including the roles (staff, customers, vehicles, bookings, etc.).
+2. [x] **Authentication Pages:** Create the signup and login pages.
+3. [x] **Handle User Roles & Create Admin:** Handle user roles in the application logic. We will create our admin user manually on Supabase once we have the tables created (including roles).
+4. [x] **Test Login And Roles:** Test the login functionality and role-based access.
 
 ### Phase 2: React Architecture & Component Integration
-1. **Component Library Setup:** Add fundamental shadcn/ui components (`button`, `input`, `select`, `toast`, `table`, `dialog`, `calendar`).
-2. **Routing & Auth Wrapping:** Configure `react-router` protecting all internal pages so that unauthenticated visitors are kicked to `/login`. Implement the top-left Toast system.
+1. [x] **Component Library Setup:** Add fundamental shadcn/ui components (`button`, `input`, `select`, `toast`, `table`, `dialog`, `calendar`).
+2. [x] **Routing & Auth Wrapping:** Configure `react-router` protecting all internal pages so that unauthenticated visitors are kicked to `/login`. Implement the top-left Toast system.
+3. [x] **Dark Mode Support:** Implement a theme toggle for light and dark modes across the dashboard.
 
 ### Phase 3: Staff CRM & Fleet Management (CRUD)
-1. **Customer CRM:** Build the `/customers` table and customer creation flow so staff can register renters.
-2. **Inventory Table:** Build `/fleet` using shadcn Data Table.
-3. **Vehicle Details/Edit:** Build `/fleet/:id` featuring a detailed form.
-4. **Media Uploads:** Implement file selection for vehicle images and customer documents, syncing to Supabase Storage.
+1. [x] **Customer CRM:** Build the `/customers` table and customer creation flow so staff can register renters.
+2. [x] **Inventory Table:** Build `/fleet` using shadcn Data Table.
+3. [x] **Vehicle Details/Edit:** Build `/fleet/:id` featuring a detailed form.
+4. [x] **Media Uploads:** Implement file selection for vehicle images and customer documents, syncing to Supabase Storage.
+5. [x] **Staff Blacklist:** Enable staff to manage a blacklist of customers with restrictive permissions.
 
 ### Phase 4: Desk Operations (Bookings & Calendars)
-1. **Manual Booking Flow:** Build `/bookings/new`. Staff creates a booking by picking a customer and a car, entering dates, and generating a record.
-2. **Bookings List:** Build `/bookings` listing all reservations.
-3. **Calendar View:** Integrate a scheduling calendar component in `/calendar` to visually map the fleet against bookings.
-4. **Operations:** In `/bookings/:id`, add buttons for staff to transition statuses (`Confirm`, `Check-Out`, `Check-In`).
+1. [x] **Manual Booking Flow:** Build `/bookings/new`. Staff creates a booking by picking a customer and a car, entering dates, and generating a record.
+2. [x] **Bookings List & Filters:** Build `/bookings` listing all reservations with Pick Up, Status, and Staff filter controls.
+3. [x] **Calendar View:** Integrate a scheduling calendar component in `/calendar` to visually map the fleet against bookings.
+4. [x] **Operations:** In `/bookings/:id`, add buttons for staff to transition statuses (`Confirm`, `Check-Out`, `Check-In`).
+5. [x] **Fleet Availability:** Enhance the fleet view with real-time availability and interactive status updates.
 
 ### Phase 5: Logging, Telemetry & Polish
-1. **Audit Logs Interface:** Build the reporting section reading from `audit_logs`.
-2. **Dashboard Metrics:** Hook up the `/` overview to live aggregates.
-3. **Role Enforcement:** Ensure middleware and UI elements rigorously differentiate between `staff`, `manager`, and `admin` limits if necessary.
+1. [x] **Audit Logs Interface:** Build the reporting section reading from `audit_logs` tracking logins, updates, and removals.
+2. [x] **Dashboard Metrics:** Hook up the `/` overview to live aggregates (Active Rentals, Available Fleet).
+3. [x] **Role Enforcement & Team Management:** Ensure middleware and UI elements rigorously differentiate between `staff`, `manager`, and `admin` limits. Add functionality to add/edit/delete staff profiles.
+4. [x] **Profile Personalization:** Enable staff to update their profile pictures and personal details.
 
 ---
 
