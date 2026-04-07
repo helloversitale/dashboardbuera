@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 import { supabase, Vehicle } from '../lib/supabase';
 import { Car, Wrench, CheckCircle, AlertTriangle } from 'lucide-react';
+import VehicleForm from './VehicleForm';
 
 export default function FleetManagement() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'available' | 'booked' | 'maintenance' | 'damaged'>('all');
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | undefined>();
 
   useEffect(() => {
     fetchVehicles();
@@ -14,34 +17,16 @@ export default function FleetManagement() {
   async function fetchVehicles() {
     setLoading(true);
     try {
-      const mockData: Vehicle[] = [
-        { id: '1', name_title: 'Hyundai Accent 2019', make: 'Hyundai', model: 'Accent', year: 2019, license_plate: 'A-67507', status: 'available', pricing_per_day: 45, color: 'White', media_urls: [], created_at: new Date().toISOString(), category: 'Sedan', updated_at: new Date().toISOString() },
-        { id: '2', name_title: 'Kia Picanto 2016', make: 'Kia', model: 'Picanto', year: 2016, license_plate: 'A-13407', status: 'booked', pricing_per_day: 35, color: 'White', media_urls: [], created_at: new Date().toISOString(), category: 'Economy', updated_at: new Date().toISOString() },
-        { id: '3', name_title: 'Nissan March 2007', make: 'Nissan', model: 'March', year: 2007, license_plate: 'A-80018', status: 'available', pricing_per_day: 25, color: 'Grey', media_urls: [], created_at: new Date().toISOString(), category: 'Economy', updated_at: new Date().toISOString() },
-        { id: '4', name_title: 'Kia Picanto 2014', make: 'Kia', model: 'Picanto', year: 2014, license_plate: 'A-30564', status: 'maintenance', pricing_per_day: 30, color: 'White', media_urls: [], created_at: new Date().toISOString(), category: 'Economy', updated_at: new Date().toISOString() },
-        { id: '5', name_title: 'Hyundai Accent 2019', make: 'Hyundai', model: 'Accent', year: 2019, license_plate: 'A-34479', status: 'available', pricing_per_day: 45, color: 'Red', media_urls: [], created_at: new Date().toISOString(), category: 'Sedan', updated_at: new Date().toISOString() },
-        { id: '6', name_title: 'Ford Eco Sport 2014', make: 'Ford', model: 'Eco Sport', year: 2014, license_plate: 'A-17684', status: 'booked', pricing_per_day: 40, color: 'Grey', media_urls: [], created_at: new Date().toISOString(), category: 'SUV', updated_at: new Date().toISOString() },
-        { id: '7', name_title: 'Kia Rio 2014', make: 'Kia', model: 'Rio', year: 2014, license_plate: 'A-82824', status: 'available', pricing_per_day: 35, color: 'Grey', media_urls: [], created_at: new Date().toISOString(), category: 'Sedan', updated_at: new Date().toISOString() },
-        { id: '8', name_title: 'Hyundai I10 Grand 2016', make: 'Hyundai', model: 'I10 Grand', year: 2016, license_plate: 'A-16148', status: 'damaged', pricing_per_day: 40, color: 'Silver', media_urls: [], created_at: new Date().toISOString(), category: 'Hatchback', updated_at: new Date().toISOString() }
-      ];
-
-      let queryRes = mockData;
-
-      try {
-        let query = supabase.from('vehicles').select('*').order('created_at', { ascending: false });
-        const { data, error } = await query;
-        if (!error && data && data.length > 0) {
-          queryRes = data;
-        }
-      } catch (error) {
-        // Fall back to mock
-      }
-
+      let query = supabase.from('vehicles').select('*').order('created_at', { ascending: false });
+      
       if (filter !== 'all') {
-        queryRes = queryRes.filter((v) => v.status === filter);
+        query = query.eq('status', filter);
       }
 
-      setVehicles(queryRes);
+      const { data, error } = await query;
+      if (!error && data) {
+        setVehicles(data);
+      }
     } catch (error) {
       console.error('Error fetching vehicles:', error);
     } finally {
@@ -199,7 +184,13 @@ export default function FleetManagement() {
                 Damaged
               </button>
             </div>
-            <button className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 transition-colors shrink-0">
+            <button 
+              onClick={() => {
+                setSelectedVehicle(undefined);
+                setIsFormOpen(true);
+              }}
+              className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 transition-colors shrink-0"
+            >
               + Add Vehicle
             </button>
           </div>
@@ -248,7 +239,13 @@ export default function FleetManagement() {
               </div>
 
               <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
-                <button className="w-full px-3 py-2 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors border border-blue-100 dark:border-blue-900/50">
+                <button 
+                  onClick={() => {
+                    setSelectedVehicle(vehicle);
+                    setIsFormOpen(true);
+                  }}
+                  className="w-full px-3 py-2 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors border border-blue-100 dark:border-blue-900/50"
+                >
                   View Details
                 </button>
               </div>
@@ -256,7 +253,18 @@ export default function FleetManagement() {
           ))}
         </div>
 
-        {vehicles.length === 0 && (
+        {isFormOpen && (
+          <VehicleForm
+            vehicle={selectedVehicle}
+            onClose={() => setIsFormOpen(false)}
+            onSuccess={() => {
+              setIsFormOpen(false);
+              fetchVehicles();
+            }}
+          />
+        )}
+
+        {vehicles.length === 0 && !isFormOpen && (
           <div className="text-center py-12">
             <Car className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
             <p className="text-gray-500 dark:text-gray-400">No vehicles found</p>
