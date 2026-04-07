@@ -15,12 +15,65 @@ export default function Header({ title, onOpenMobileMenu }: HeaderProps) {
   const { user, role, avatarUrl } = useAuth();
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [notifications, setNotifications] = useState<any[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const notificationsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    fetchNotifications();
+
+    // Subscribe to new notifications
+    const channel = supabase
+      .channel('public:notifications')
+      .on('postgres_changes', { 
+        event: 'INSERT', 
+        schema: 'public', 
+        table: 'notifications' 
+      }, (payload) => {
+        setNotifications(prev => [payload.new, ...prev]);
+        // Show browser notification if possible or just update UI
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  async function fetchNotifications() {
+    const { data } = await supabase
+      .from('notifications')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(10);
+    
+    if (data) setNotifications(data);
+  }
+
+  const unreadCount = notifications.filter(n => !n.read).length;
+
+  const markAllAsRead = async () => {
+    const unreadIds = notifications.filter(n => !n.read).map(n => n.id);
+    if (unreadIds.length === 0) return;
+
+    const { error } = await supabase
+      .from('notifications')
+      .update({ read: true })
+      .in('id', unreadIds);
+
+    if (!error) {
+      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    }
+  };
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setDropdownOpen(false);
+      }
+      if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
+        setNotificationsOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -72,10 +125,74 @@ export default function Header({ title, onOpenMobileMenu }: HeaderProps) {
         </div>
 
         <div className="flex items-center gap-3">
-          <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors relative">
-            <Bell className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-gray-900"></span>
-          </button>
+          <div className="relative" ref={notificationsRef}>
+            <button 
+              onClick={() => {
+                setNotificationsOpen(!notificationsOpen);
+                if (!notificationsOpen) markAllAsRead();
+              }}
+              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors relative"
+            >
+              <Bell className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              {unreadCount > 0 && (
+                <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white dark:border-gray-900">
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+
+            {notificationsOpen && (
+              <div className="absolute right-0 mt-2 w-80 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 dark:ring-gray-700 z-50 overflow-hidden text-left">
+                <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                  <h3 className="text-sm font-bold text-gray-900 dark:text-white">Notifications</h3>
+                  {unreadCount > 0 && (
+                    <span className="text-[10px] bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 px-2 py-0.5 rounded font-bold uppercase tracking-wider">
+                      {unreadCount} New
+                    </span>
+                  )}
+                </div>
+                <div className="max-h-96 overflow-y-auto">
+                  {notifications.length === 0 ? (
+                    <div className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                      <Bell className="w-8 h-8 mx-auto mb-2 opacity-20" />
+                      <p className="text-xs">No recent notifications</p>
+                    </div>
+                  ) : (
+                    notifications.map((notif) => (
+                      <button
+                        key={notif.id}
+                        onClick={() => {
+                          if (notif.link) navigate(notif.link);
+                          setNotificationsOpen(false);
+                        }}
+                        className={`w-full text-left px-4 py-3 border-b border-gray-50 dark:border-gray-700/50 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors relative ${!notif.read ? 'bg-blue-50/30 dark:bg-blue-900/10' : ''}`}
+                      >
+                        {!notif.read && (
+                          <span className="absolute left-1.5 top-1/2 -translate-y-1/2 w-1 h-8 bg-blue-500 rounded-full"></span>
+                        )}
+                        <p className={`text-xs ${!notif.read ? 'font-bold text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400'}`}>
+                          {notif.message}
+                        </p>
+                        <p className="text-[10px] text-gray-400 mt-1">
+                          {new Date(notif.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                      </button>
+                    ))
+                  )}
+                </div>
+                {notifications.length > 0 && (
+                  <div className="px-4 py-2 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-100 dark:border-gray-700 text-center">
+                    <button 
+                      onClick={() => navigate('/bookings')}
+                      className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest hover:underline"
+                    >
+                      View All Activity
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
 
           {/* Dark / Light mode toggle */}
           <button
