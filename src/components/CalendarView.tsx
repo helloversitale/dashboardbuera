@@ -1,34 +1,69 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Car, Info } from 'lucide-react';
-import { addDays, format, startOfWeek } from 'date-fns';
+import { addDays, format, isWithinInterval, startOfDay, startOfWeek } from 'date-fns';
+import { supabase, Vehicle, Booking } from '../lib/supabase';
+import BookingForm from './BookingForm';
 
 export default function CalendarView() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [statusFilter, setStatusFilter] = useState<'all' | 'available' | 'rented' | 'maintenance' | 'damaged'>('all');
-
-  // Mock fleet for the timeline view
-  const fleet = [
-    { id: 1, name: 'Toyota Camry 2023', plate: 'XYZ-1234', status: 'available' },
-    { id: 2, name: 'Honda Civic 2022', plate: 'ABC-9876', status: 'rented' },
-    { id: 3, name: 'Ford Explorer 2024', plate: 'LMN-4567', status: 'maintenance' },
-    { id: 4, name: 'Tesla Model 3', plate: 'EV-001', status: 'damaged' },
-  ];
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isBookingFormOpen, setIsBookingFormOpen] = useState(false);
+  const [selectedBookingForForm, setSelectedBookingForForm] = useState<any>(null);
 
   const startDate = startOfWeek(currentDate, { weekStartsOn: 1 });
+  const endDate = addDays(startDate, 6);
   const days = Array.from({ length: 7 }).map((_, i) => addDays(startDate, i));
 
-  const getRandomStatusForDay = (vehicleStatus: string, dayIndex: number) => {
-    if (dayIndex % 3 === 0 && vehicleStatus === 'rented') return 'rented';
-    if (dayIndex % 2 === 0 && vehicleStatus === 'maintenance') return 'maintenance';
-    if (vehicleStatus === 'damaged') return 'damaged';
-    return 'available';
+  useEffect(() => {
+    fetchData();
+  }, [currentDate]);
+
+  async function fetchData() {
+    setLoading(true);
+    try {
+      // Fetch all vehicles
+      const { data: vData } = await supabase.from('vehicles').select('*').order('make');
+      if (vData) setVehicles(vData);
+
+      // Fetch bookings in this range
+      const { data: bData } = await supabase
+        .from('bookings')
+        .select('*, customers(full_name)')
+        .neq('status', 'cancelled')
+        .or(`pickup_datetime.lte.${endDate.toISOString()},return_datetime.gte.${startDate.toISOString()}`);
+      
+      if (bData) setBookings(bData);
+    } catch (error) {
+      console.error('Error fetching calendar data:', error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const getVehicleStatusForDate = (vehicle: Vehicle, date: Date) => {
+    // 1. Check if vehicle itself is maintenance or damaged
+    if (vehicle.status === 'maintenance') return 'maintenance';
+    if (vehicle.status === 'damaged') return 'damaged';
+
+    // 2. Check if there's a booking for this day
+    const dayStart = startOfDay(date);
+    const hasBooking = bookings.some(b => {
+      if (b.vehicle_id !== vehicle.id) return false;
+      const start = startOfDay(new Date(b.pickup_datetime));
+      const end = startOfDay(new Date(b.return_datetime));
+      return isWithinInterval(dayStart, { start, end });
+    });
+
+    return hasBooking ? 'rented' : 'available';
   };
 
   const filteredFleet = statusFilter === 'all' 
-    ? fleet 
-    : fleet.filter(car => {
-        // A car matches if its base status matches OR if it has any day with that status in the current view
-        return car.status === statusFilter || days.some((_, i) => getRandomStatusForDay(car.status, i) === statusFilter);
+    ? vehicles 
+    : vehicles.filter(car => {
+        return days.some((day) => getVehicleStatusForDate(car, day) === statusFilter);
     });
 
   const changeWeek = (offset: number) => {
@@ -58,7 +93,10 @@ export default function CalendarView() {
               <ChevronRight className="w-4 h-4 md:w-5 h-5" />
             </button>
           </div>
-          <button className="px-3 md:px-4 py-1.5 md:py-2 bg-blue-600 text-white text-xs md:text-sm font-medium rounded hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/20 active:scale-95">
+          <button 
+            onClick={() => setCurrentDate(new Date())}
+            className="px-3 md:px-4 py-1.5 md:py-2 bg-blue-600 text-white text-xs md:text-sm font-medium rounded hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/20 active:scale-95"
+          >
             Today
           </button>
         </div>
@@ -99,72 +137,109 @@ export default function CalendarView() {
       </div>
 
       <div className="overflow-x-auto min-h-[400px]">
-        {/* Day Headers */}
-        <div className="flex min-w-[800px] border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800 z-10 transition-colors">
-          <div className="w-1/4 min-w-[200px] p-4 font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-200 dark:border-gray-700 flex items-end">
-            Vehicle
+        {loading ? (
+          <div className="flex items-center justify-center h-64">
+             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           </div>
-          <div className="w-3/4 flex">
-            {days.map((day, i) => (
-              <div key={i} className="flex-1 p-3 text-center border-r border-gray-200 dark:border-gray-700 last:border-0 relative">
-                <span className="block text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-widest">{format(day, 'EEE')}</span>
-                <span className={`text-xl font-bold ${format(day, 'MM-dd') === format(new Date(), 'MM-dd') ? 'text-blue-600 dark:text-blue-400' : 'text-gray-900 dark:text-white'}`}>
-                  {format(day, 'd')}
-                </span>
-                {format(day, 'MM-dd') === format(new Date(), 'MM-dd') && (
-                  <div className="absolute top-0 right-0 left-0 flex justify-center mt-1">
-                    <span className="w-1.5 h-1.5 bg-blue-600 dark:bg-blue-400 rounded-full"></span>
+        ) : (
+          <>
+          {/* Day Headers */}
+          <div className="flex min-w-[800px] border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800 z-10 transition-colors">
+            <div className="w-1/4 min-w-[200px] p-4 font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-200 dark:border-gray-700 flex items-end">
+              Vehicle
+            </div>
+            <div className="w-3/4 flex">
+              {days.map((day, i) => (
+                <div key={i} className="flex-1 p-3 text-center border-r border-gray-200 dark:border-gray-700 last:border-0 relative">
+                  <span className="block text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-widest">{format(day, 'EEE')}</span>
+                  <span className={`text-xl font-bold ${format(day, 'MM-dd') === format(new Date(), 'MM-dd') ? 'text-blue-600 dark:text-blue-400' : 'text-gray-900 dark:text-white'}`}>
+                    {format(day, 'd')}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Fleet Rows */}
+          <div className="min-w-[800px]">
+            {filteredFleet.map((car) => (
+              <div key={car.id} className="flex border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                <div className="w-1/4 min-w-[200px] p-4 border-r border-gray-100 dark:border-gray-700 flex flex-col justify-center">
+                  <div className="font-medium text-gray-900 dark:text-white text-sm flex items-center gap-2">
+                    <Car className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                    {car.make} {car.model}
                   </div>
-                )}
+                  <div className="text-xs text-gray-500 dark:text-gray-300 mt-0.5 ml-6">{car.license_plate}</div>
+                </div>
+                <div className="w-3/4 flex relative">
+                  {days.map((day, i) => {
+                    const dayStatus = getVehicleStatusForDate(car, day);
+                    const bookingToday = dayStatus === 'rented' ? bookings.find(b => {
+                      const start = startOfDay(new Date(b.pickup_datetime));
+                      const end = startOfDay(new Date(b.return_datetime));
+                      return b.vehicle_id === car.id && isWithinInterval(startOfDay(day), { start, end });
+                    }) : null;
+
+                    return (
+                      <div key={i} className="flex-1 border-r border-gray-100 dark:border-gray-700 last:border-0 p-1">
+                        {dayStatus === 'rented' && (
+                          <div className="h-full w-full bg-blue-100 dark:bg-blue-900/50 border border-blue-200 dark:border-blue-700 rounded p-2 flex flex-col justify-center">
+                            <span className="text-[10px] md:text-xs font-bold text-blue-800 dark:text-blue-300 block truncate">
+                               {bookingToday?.customers?.full_name || 'Booked'}
+                            </span>
+                          </div>
+                        )}
+                        {dayStatus === 'maintenance' && (
+                          <div className="h-full w-full bg-orange-100 dark:bg-orange-900/50 border border-orange-200 dark:border-orange-700 rounded p-2 flex flex-col justify-center">
+                            <span className="text-xs font-bold text-orange-800 dark:text-orange-300 block">Mechanic</span>
+                          </div>
+                        )}
+                        {dayStatus === 'damaged' && (
+                          <div className="h-full w-full bg-red-100 dark:bg-red-900/50 border border-red-200 dark:border-red-700 rounded p-2 flex flex-col justify-center">
+                            <span className="text-xs font-bold text-red-800 dark:text-red-300 block">Damaged</span>
+                          </div>
+                        )}
+                        {dayStatus === 'available' && (
+                          <div 
+                            onClick={() => {
+                              const pickup = new Date(day);
+                              pickup.setHours(9, 0, 0, 0); // Default 9 AM
+                              const returnDate = new Date(pickup);
+                              returnDate.setDate(returnDate.getDate() + 1); // Default 1 day
+                              
+                              setSelectedBookingForForm({
+                                vehicle_id: car.id,
+                                pickup_datetime: pickup.toISOString(),
+                                return_datetime: returnDate.toISOString()
+                              });
+                              setIsBookingFormOpen(true);
+                            }}
+                            className="h-full w-full rounded p-2 flex flex-col justify-center bg-green-50/10 dark:bg-green-900/5 hover:bg-green-50/40 dark:hover:bg-green-900/20 cursor-pointer border border-transparent hover:border-green-200/50 dark:hover:border-green-700/50 transition-colors group"
+                          >
+                            <span className="text-[10px] font-medium text-green-600/30 dark:text-green-400/20 group-hover:opacity-100 text-center transition-opacity">Available</span>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             ))}
           </div>
-        </div>
-
-        {/* Fleet Rows */}
-        <div className="min-w-[800px]">
-          {filteredFleet.map((car) => (
-            <div key={car.id} className="flex border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-              <div className="w-1/4 min-w-[200px] p-4 border-r border-gray-100 dark:border-gray-700 flex flex-col justify-center">
-                <div className="font-medium text-gray-900 dark:text-white text-sm flex items-center gap-2">
-                  <Car className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-                  {car.name}
-                </div>
-                <div className="text-xs text-gray-500 dark:text-gray-300 mt-0.5 ml-6">{car.plate}</div>
-              </div>
-              <div className="w-3/4 flex relative">
-                {days.map((_, i) => {
-                  const dayStatus = getRandomStatusForDay(car.status, i);
-                  return (
-                    <div key={i} className="flex-1 border-r border-gray-100 dark:border-gray-700 last:border-0 p-1">
-                      {dayStatus === 'rented' && (
-                        <div className="h-full w-full bg-blue-100 dark:bg-blue-900/50 border border-blue-200 dark:border-blue-700 rounded p-2 flex flex-col justify-center">
-                          <span className="text-xs font-bold text-blue-800 dark:text-blue-300 block">Booked</span>
-                        </div>
-                      )}
-                      {dayStatus === 'maintenance' && (
-                        <div className="h-full w-full bg-orange-100 dark:bg-orange-900/50 border border-orange-200 dark:border-orange-700 rounded p-2 flex flex-col justify-center">
-                          <span className="text-xs font-bold text-orange-800 dark:text-orange-300 block">Mechanic</span>
-                        </div>
-                      )}
-                      {dayStatus === 'damaged' && (
-                        <div className="h-full w-full bg-red-100 dark:bg-red-900/50 border border-red-200 dark:border-red-700 rounded p-2 flex flex-col justify-center">
-                          <span className="text-xs font-bold text-red-800 dark:text-red-300 block">Damaged</span>
-                        </div>
-                      )}
-                      {dayStatus === 'available' && (
-                        <div className="h-full w-full rounded p-2 flex flex-col justify-center bg-green-50/10 dark:bg-green-900/5 hover:bg-green-50/40 dark:hover:bg-green-900/20 cursor-pointer border border-transparent hover:border-green-200/50 dark:hover:border-green-700/50 transition-colors group">
-                          <span className="text-[10px] font-medium text-green-600/30 dark:text-green-400/20 group-hover:opacity-100 text-center transition-opacity">Available</span>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </div>
+          </>
+        )}
       </div>
+
+      {isBookingFormOpen && (
+        <BookingForm 
+          booking={selectedBookingForForm}
+          onClose={() => setIsBookingFormOpen(false)}
+          onSuccess={() => {
+            setIsBookingFormOpen(false);
+            fetchData();
+          }}
+        />
+      )}
       
       {/* Info Footer */}
       <div className="p-4 bg-blue-50/50 dark:bg-blue-900/20 border-t border-blue-100 dark:border-blue-800 flex items-start gap-3 text-sm text-blue-800 dark:text-blue-300">
