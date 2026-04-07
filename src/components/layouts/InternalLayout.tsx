@@ -41,8 +41,19 @@ export default function InternalLayout() {
           title={getPageTitle(location.pathname)} 
           onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
         />
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50 dark:bg-gray-950 transition-colors">
-          <div className="max-w-[1600px] mx-auto">
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50 dark:bg-gray-950 transition-colors relative">
+          {/* Dashboard Accent Background */}
+          <div 
+            className="fixed bottom-0 right-0 w-[500px] h-[300px] md:w-[800px] md:h-[500px] opacity-[0.03] dark:opacity-[0.07] pointer-events-none z-0 translate-x-1/4 translate-y-1/4 hidden lg:block"
+            style={{ 
+              backgroundImage: "url('/login-bg.png')",
+              backgroundSize: 'contain',
+              backgroundPosition: 'right bottom',
+              backgroundRepeat: 'no-repeat',
+              filter: 'grayscale(100%) contrast(120%)'
+            }}
+          />
+          <div className="max-w-[1600px] mx-auto relative z-10">
             <Outlet />
           </div>
         </main>
