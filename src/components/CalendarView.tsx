@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Car, Info } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Car } from 'lucide-react';
 import { addDays, format, isWithinInterval, startOfDay, startOfWeek } from 'date-fns';
 import { supabase, Vehicle, Booking } from '../lib/supabase';
 import BookingForm from './BookingForm';
@@ -241,11 +241,7 @@ export default function CalendarView() {
         />
       )}
       
-      {/* Info Footer */}
-      <div className="p-4 bg-blue-50/50 dark:bg-blue-900/20 border-t border-blue-100 dark:border-blue-800 flex items-start gap-3 text-sm text-blue-800 dark:text-blue-300">
-        <Info className="w-5 h-5 flex-shrink-0 mt-0.5 text-blue-600 dark:text-blue-400" />
-        <p>This is your interactive fleet availability calendar. You can click on any 'Available' block to instantly create a new booking for that specific car and date. Drag across days for multi-day bookings.</p>
-      </div>
+
     </div>
   );
 }
